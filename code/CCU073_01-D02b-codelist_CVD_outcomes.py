@@ -1,0 +1,1435 @@
+# Databricks notebook source
+# MAGIC %md # CCU073_01-D02b-codelist_CVD_outcomes
+# MAGIC
+# MAGIC **Description** This notebook creates the codelist for outcomes.
+# MAGIC
+# MAGIC **Authors** Genevieve Cezard, Wen Shi
+# MAGIC
+# MAGIC **Created on** 2023.11.10
+# MAGIC
+# MAGIC **Last updated on** 2024.11.11
+# MAGIC
+# MAGIC **Data input** functions - libraries - parameters
+# MAGIC
+# MAGIC **Data output** \
+# MAGIC CCU073_01_out_codelist_CVD_outcomes
+# MAGIC
+# MAGIC **Reviewers** Wen Shi, Genevieve Cezard
+# MAGIC
+# MAGIC **Reviewed**  2023.12.06 / 2024.04.25 / 2024.11.17
+# MAGIC
+# MAGIC **Acknowledgements** 
+# MAGIC
+# MAGIC **Notes**
+
+# COMMAND ----------
+
+spark.sql('CLEAR CACHE')
+
+# COMMAND ----------
+
+# DBTITLE 1,Libraries
+import pyspark.sql.functions as f
+import pyspark.sql.types as t
+from pyspark.sql import Window
+
+from functools import reduce
+
+import databricks.koalas as ks
+import pandas as pd
+import numpy as np
+
+import re
+import io
+import datetime
+
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib import dates as mdates
+import seaborn as sns
+
+print("Matplotlib version: ", matplotlib.__version__)
+print("Seaborn version: ", sns.__version__)
+_datetimenow = datetime.datetime.now() # .strftime("%Y%m%d")
+print(f"_datetimenow:  {_datetimenow}")
+
+# COMMAND ----------
+
+# DBTITLE 1,Functions
+# MAGIC %run "/Shared/SHDS/common/functions"
+
+# COMMAND ----------
+
+# MAGIC %md # 0. Parameters
+
+# COMMAND ----------
+
+# MAGIC %run "./CCU073_01-D01-parameters"
+
+# COMMAND ----------
+
+# MAGIC %md # 1. Codelists for non-fatal CVD Outcomes
+
+# COMMAND ----------
+
+# MAGIC %md ## 1.1. Angina
+
+# COMMAND ----------
+
+codelist_Angina = spark.createDataFrame(
+  [
+    
+('Angina','ICD10','I200','Unstable angina','1'),
+('Angina','ICD10','I201','Angina pectoris with documented spasm','1'),
+('Angina','ICD10','I208','Other forms of angina pectoris','2'),
+('Angina','ICD10','I209','Angina pectoris, unspecified','2'),
+('Angina','SNOMED','314116003','Post infarct angina','1'),
+('Angina','SNOMED','4557003','Preinfarction syndrome (disorder)','1'),
+('Angina','SNOMED','19057007','Status anginosus (disorder)','1'),
+('Angina','SNOMED','21470009','Syncope anginosa (disorder)','1'),
+('Angina','SNOMED','25106000','Impending infarction (disorder)','1'),
+('Angina','SNOMED','35928006','Nocturnal angina (disorder)','1'),
+('Angina','SNOMED','46109009','Subendocardial ischemia (disorder)','1'),
+('Angina','SNOMED','59021001','Angina decubitus (disorder)','1'),
+('Angina','SNOMED','87343002','Prinzmetal angina (disorder)','1'),
+('Angina','SNOMED','194828000','Angina (disorder)','1'),
+('Angina','SNOMED','225566008','Ischemic chest pain (finding)','1'),
+('Angina','SNOMED','233819005','Stable angina (disorder)','2'),
+('Angina','SNOMED','233821000','New onset angina (disorder)','1'),
+('Angina','SNOMED','300995000','Exercise-induced angina (disorder)','1'),
+('Angina','SNOMED','315025001','Refractory angina (disorder)','1'),
+('Angina','SNOMED','429559004','Typical angina (disorder)','1'),
+('Angina','SNOMED','15960141000119102','Angina co-occurrent and due to coronary arteriosclerosis','1'),
+('Angina','SNOMED','15960061000119102','Unstable angina co-occurrent and due to coronary arteriosclerosis','1'),
+('Angina','SNOMED','15960461000119105','Unstable angina due to arteriosclerosis of autologous arterial coronary artery bypass graft','1'),
+('Angina','SNOMED','15960541000119107','Unstable angina due to arteriosclerosis of autologous vein coronary artery bypass graft','1'),
+('Angina','SNOMED','15960341000119104','Unstable angina due to arteriosclerosis of coronary artery bypass graft of transplanted heart','1'),
+('Angina','SNOMED','371806006','Progressive angina','1'),
+('Angina','SNOMED','371810009','Recurrent angina status post coronary artery bypass graft','1'),
+('Angina','SNOMED','371809004','Recurrent angina status post coronary stent placement','1'),
+('Angina','SNOMED','371812001','Recurrent angina status post directional coronary atherectomy','1'),
+('Angina','SNOMED','371808007','Recurrent angina status post percutaneous transluminal coronary angioplasty','1'),
+('Angina','SNOMED','371811008','Recurrent angina status post rotational atherectomy','1'),
+('Angina','SNOMED','16754391000119100','Stable angina due to coronary arteriosclerosis','2'),
+('Angina','SNOMED','791000119109','Angina due to type 2 diabetes mellitus','1'),
+('Angina','SNOMED','15960381000119109','Angina co-occurrent and due to arteriosclerosis of coronary artery bypass graft (disorde)','1'),
+('Angina','SNOMED','15960581000119102','Angina co-occurrent and due to arteriosclerosis of autologous vein coronary artery bypass graft','1'),
+('Angina','SNOMED','15960661000119107','Unstable angina co-occurrent and due to arteriosclerosis of coronary artery bypass graft','1'),
+('Angina','SNOMED','23687008','Coronary artery spasm','1'),
+('Angina','SNOMED','15960061000119100',' Unstable angina co-occurrent and due to coronary arteriosclerosis (disorder)"        ','1'),
+('Angina','SNOMED','15960141000119100',' Angina co-occurrent and due to coronary arteriosclerosis (disorder)"                 ','1'),
+('Angina','SNOMED','15960381000119100',' Angina co-occurrent and due to arteriosclerosis of coronary artery bypass graft (..."','1'),
+('Angina','SNOMED','15960581000119100',' Angina co-occurrent and due to arteriosclerosis of autologous vein coronary arter..."','1'),
+('Angina','SNOMED','15960661000119100',' Unstable angina co-occurrent and due to arteriosclerosis of coronary artery bypas..."','1'),
+('Angina','SNOMED','41334000','Angina, class II (disorder)','1'),
+('Angina','SNOMED','61490001','Angina, class I (disorder)','1'),
+('Angina','SNOMED','85284003','Angina, class III (disorder)','1'),
+('Angina','SNOMED','89323001','Angina, class IV (disorder)','1'),
+
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_Angina, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md ## 1.2. Coronary Heart disease (CHD)
+
+# COMMAND ----------
+
+codelist_CHD = spark.createDataFrame(
+  [
+    
+('CHD','ICD10','I21','Acute myocardial infarction','1'),
+('CHD','ICD10','I22','Subsequent myocardial infarction','1'),
+('CHD','ICD10','I23','Certain current complications following acute myocardial infarction','1'),
+('CHD','ICD10','I240','Coronary thrombosis not resulting in myocardial infarction','2'),
+('CHD','ICD10','I241',"Dressler's syndrome",'1'),
+('CHD','ICD10','I248','Other forms of acute ischaemic heart disease','1'),
+('CHD','ICD10','I249','Acute ischaemic heart disease, unspecified','1'),
+('CHD','ICD10','I251','Atherosclerotic heart disease','2'),
+('CHD','ICD10','I252','Old myocardial infarction','2'),
+('CHD','ICD10','I253','Aneurysm of heart','1'),
+('CHD','ICD10','I254','Coronary artery aneurysm and dissection','1'),
+('CHD','ICD10','I255','Ischaemic cardiomyopathy','2'),
+('CHD','ICD10','I256','Silent myocardial ischaemia','2'),
+('CHD','ICD10','I258','Other forms of chronic ischaemic heart disease','2'),
+('CHD','ICD10','I259','Chronic ischaemic heart disease, unspecified','2'),
+('CHD','ICD10','T822','Mechanical complication of coronary artery bypass and valve grafts','1'),
+('CHD','SNOMED','10273003','Acute infarction of papillary muscle','1'),
+('CHD','SNOMED','1089471000000109','Acute transmural myocardial infarction (disorder)','1'),
+('CHD','SNOMED','12238151000119107','Acute ST segment elevation myocardial infarction of inferoposterior wall (disorder)','1'),
+('CHD','SNOMED','129574000','Postoperative myocardial infarction','1'),
+('CHD','SNOMED','15712881000119105','Acute ST segment elevation myocardial infarction of anterolateral wall (disorder)','1'),
+('CHD','SNOMED','15712921000119103','Acute ST segment elevation myocardial infarction of lateral wall (disorder)','1'),
+('CHD','SNOMED','15990001','Acute myocardial infarction of posterolateral wall','1'),
+('CHD','SNOMED','161502000','H/O: myocardial infarct at less than 60','1'),
+('CHD','SNOMED','161503005','H/O: myocardial infarct at greater than 60','1'),
+('CHD','SNOMED','1755008','Old myocardial infarction','2'),
+('CHD','SNOMED','194802003','True posterior myocardial infarction','1'),
+('CHD','SNOMED','194809007','Acute atrial infarction','1'),
+('CHD','SNOMED','194856005','Subsequent myocardial infarction','1'),
+('CHD','SNOMED','194857001','Subsequent myocardial infarction of anterior wall','1'),
+('CHD','SNOMED','194858006','Subsequent myocardial infarction of inferior wall','1'),
+('CHD','SNOMED','194862000','Haemopericardium as current complication following acute myocardial infarction','1'),
+('CHD','SNOMED','194863005','Atrial septal defect as current complication following acute myocardial infarction','1'),
+('CHD','SNOMED','194865003','Rupture of cardiac wall without hemopericardium as current complication following acute myocardial infarction','1'),
+('CHD','SNOMED','194866002','Rupture of chordae tendinae as current complication following acute myocardial infarction','1'),
+('CHD','SNOMED','194867006','Rupture of papillary muscle as current complication following acute myocardial infarction','1'),
+('CHD','SNOMED','194868001','Thrombosis of atrium, auricular appendage, and ventricle as current complications following acute myocardial infarction','1'),
+('CHD','SNOMED','22298006','Myocardial infarction','1'),
+('CHD','SNOMED','233825009','Acute Q wave infarction - anteroseptal (disorder)','1'),
+('CHD','SNOMED','233826005','Acute non-Q wave infarction - anteroseptal (disorder)','1'),
+('CHD','SNOMED','233827001','Acute Q wave infarction - anterolateral (disorder)','1'),
+('CHD','SNOMED','233828006','Acute non-Q wave infarction - anterolateral (disorder)','1'),
+('CHD','SNOMED','233829003','Acute Q wave infarction - inferior (disorder)','1'),
+('CHD','SNOMED','233830008','Acute non-Q wave infarction - inferior (disorder)','1'),
+('CHD','SNOMED','233831007','Acute Q wave infarction - inferolateral (disorder)','1'),
+('CHD','SNOMED','233832000','Acute non-Q wave infarction - inferolateral (disorder)','1'),
+('CHD','SNOMED','233833005','Acute Q wave infarction - lateral (disorder)','1'),
+('CHD','SNOMED','233834004','Acute non-Q wave infarction - lateral (disorder)','1'),
+('CHD','SNOMED','233835003','Acute widespread myocardial infarction (disorder)','1'),
+('CHD','SNOMED','233838001','Acute posterior myocardial infarction','1'),
+('CHD','SNOMED','233843008','Silent myocardial infarction','1'),
+('CHD','SNOMED','233846000','Ventricular septal defect as current complication following acute myocardial infarction','1'),
+('CHD','SNOMED','233847009','Cardiac rupture after acute myocardial infarction','1'),
+('CHD','SNOMED','285991000119100','Acute ST segment elevation myocardial infarction involving left main coronary artery (disorder)','1'),
+('CHD','SNOMED','304914007','Acute Q wave myocardial infarction','1'),
+('CHD','SNOMED','307140009','Acute non-Q wave infarction','1'),
+('CHD','SNOMED','308065005','H/O: Myocardial infarction in last year','1'),
+('CHD','SNOMED','311792005','Postoperative transmural myocardial infarction of anterior wall','1'),
+('CHD','SNOMED','311793000','Postoperative transmural myocardial infarction of inferior wall','1'),
+('CHD','SNOMED','311796008','Postoperative subendocardial myocardial infarction','1'),
+('CHD','SNOMED','314207007','Non-Q wave myocardial infarction (disorder)','1'),
+('CHD','SNOMED','371068009','Myocardial infarction with complication (disorder)','1'),
+('CHD','SNOMED','394659003','Acute coronary syndrome (disorder)','1'),
+('CHD','SNOMED','394710008','First myocardial infarction (disorder)','1'),
+('CHD','SNOMED','398274000','Coronary artery thrombosis (disorder)','1'),
+('CHD','SNOMED','399211009','History of - myocardial infarction (context-dependent category)','2'),
+('CHD','SNOMED','401303003','Acute ST segment elevation myocardial infarction (disorder)','1'),
+('CHD','SNOMED','401314000','Acute non-ST segment elevation myocardial infarction (disorder)','1'),
+('CHD','SNOMED','42531007','Microinfarct of heart','1'),
+('CHD','SNOMED','428196007','Mixed myocardial ischemia and infarction (disorder)','1'),
+('CHD','SNOMED','428752002','Recent myocardial infarction (situation)','1'),
+('CHD','SNOMED','52035003','Acute anteroapical myocardial infarction','1'),
+('CHD','SNOMED','54329005','Acute myocardial infarction of anterior wall','1'),
+('CHD','SNOMED','57054005','Acute myocardial infarction','1'),
+('CHD','SNOMED','58612006','Acute myocardial infarction of lateral wall','1'),
+('CHD','SNOMED','62695002','Acute anteroseptal myocardial infarction','1'),
+('CHD','SNOMED','65547006','Acute myocardial infarction of inferolateral wall','1'),
+('CHD','SNOMED','66189004','Postmyocardial infarction syndrome','1'),
+('CHD','SNOMED','698593009','History of non-ST segment elevation myocardial infarction (situation)','2'),
+('CHD','SNOMED','70211005','Acute myocardial infarction of anterolateral wall','1'),
+('CHD','SNOMED','703164000','Acute ST segment elevation myocardial infarction of anterior wall (disorder)','1'),
+('CHD','SNOMED','703209002','Subsequent ST segment elevation myocardial infarction of inferior wall (disorder)','1'),
+('CHD','SNOMED','703211006','Subsequent ST segment elevation myocardial infarction (disorder)','1'),
+('CHD','SNOMED','703213009','Acute ST segment elevation myocardial infarction of inferior wall (disorder)','1'),
+('CHD','SNOMED','703360004','Subsequent non-ST segment elevation myocardial infarction (disorder)','1'),
+('CHD','SNOMED','70422006','Acute subendocardial infarction','1'),
+('CHD','SNOMED','73795002','Acute myocardial infarction of inferior wall','1'),
+('CHD','SNOMED','76593002','Acute myocardial infarction of inferoposterior wall','1'),
+('CHD','SNOMED','79009004','Acute myocardial infarction of septum','1'),
+('CHD','SNOMED','53741008','Coronary arteriosclerosis (disorder)','2'),
+('CHD','SNOMED','92517006','Calcific coronary arteriosclerosis (disorder)','2'),
+('CHD','SNOMED','194821006','Coronary thrombosis not resulting in myocardial infarction (disorder)','0'),
+('CHD','SNOMED','194823009','Acute coronary insufficiency (disorder)','1'),
+('CHD','SNOMED','194842008','Single coronary vessel disease (disorder)','1'),
+('CHD','SNOMED','194843003','Double coronary vessel disease (disorder)','1'),
+('CHD','SNOMED','233817007','Triple vessel disease of the heart (disorder)','2'),
+('CHD','SNOMED','233839009','Old anterior myocardial infarction (disorder)','2'),
+('CHD','SNOMED','233840006','Old inferior myocardial infarction (disorder)','2'),
+('CHD','SNOMED','233841005','Old lateral myocardial infarction (disorder)','2'),
+('CHD','SNOMED','233842003','Old posterior myocardial infarction (disorder)','2'),
+('CHD','SNOMED','233844002','Accelerated coronary artery disease in transplanted heart (disorder)','1'),
+('CHD','SNOMED','315348000','Asymptomatic coronary heart disease (disorder)','2'),
+('CHD','SNOMED','371803003','Multi vessel coronary artery disease (disorder)','2'),
+('CHD','SNOMED','371804009','Left main coronary artery disease (disorder)','1'),
+('CHD','SNOMED','413439005','Acute ischemic heart disease (disorder)','1'),
+('CHD','SNOMED','413838009','Chronic ischemic heart disease (disorder)','2'),
+('CHD','SNOMED','413844008','Chronic myocardial ischemia (disorder)','2'),
+('CHD','SNOMED','414545008','Ischemic heart disease (disorder)','2'),
+('CHD','SNOMED','414795007','Myocardial ischemia (disorder)','1'),
+('CHD','SNOMED','443502000','Atherosclerosis of coronary artery (disorder)','2'),
+('CHD','SNOMED','719678003','Non-obstructive atherosclerosis of coronary artery (disorder)','2'),
+('CHD','SNOMED','810681000000101','Coronary microvascular disease (disorder)','2'),
+('CHD','SNOMED','1077002','Septal infarction by electrocardiogram','1'),
+('CHD','SNOMED','1089431000000107','Postoperative nontransmural myocardial infarction','1'),
+('CHD','SNOMED','1089441000000103','Postoperative transmural myocardial infarction','1'),
+('CHD','SNOMED','1089451000000100','Acute nontransmural myocardial infarction','1'),
+('CHD','SNOMED','12238111000119106','Acute ST segment elevation myocardial infarction of inferolateral wall','1'),
+('CHD','SNOMED','15712841000119100','Acute ST segment elevation myocardial infarction of posterolateral wall','1'),
+('CHD','SNOMED','15712961000119108','Acute ST segment elevation myocardial infarction of anteroseptal wall','1'),
+('CHD','SNOMED','15713041000119103','Acute ST segment elevation myocardial infarction of posterior wall','1'),
+('CHD','SNOMED','15713081000119108','Acute ST segment elevation myocardial infarction due to left coronary artery occlusion','1'),
+('CHD','SNOMED','15713121000119105','Acute ST segment elevation myocardial infarction due to right coronary artery occlusion','1'),
+('CHD','SNOMED','15713161000119100','Acute ST segment elevation myocardial infarction of septum','1'),
+('CHD','SNOMED','15713201000119105','Acute ST segment elevation myocardial infarction of posterobasal wall','1'),
+('CHD','SNOMED','15960981000119105','Mural thrombus of left ventricle following acute myocardial infarction','1'),
+('CHD','SNOMED','16837681000119104','Acute myocardial infarction of posterolateral wall','1'),
+('CHD','SNOMED','17531000119105','Myocardial infarction due to demand ischemia','1'),
+('CHD','SNOMED','23311000119105','Atrial septal defect due to and following acute myocardial infarction','1'),
+('CHD','SNOMED','233836002','Rupture of cardiac wall without hemopericardium as current complication following acute myocardial infarction','1'),
+('CHD','SNOMED','233837006','Rupture of chordae tendinae due to and following acute myocardial infarction','1'),
+('CHD','SNOMED','282006','Rupture of papillary muscle as current complication following acute myocardial infarction','1'),
+('CHD','SNOMED','285981000119103','Acute ST segment elevation myocardial infarction involving left anterior descending coronary artery','1'),
+('CHD','SNOMED','30277009','Myocardial infarction','1'),
+('CHD','SNOMED','413444003','Acute Q wave infarction - anteroseptal','1'),
+('CHD','SNOMED','41466009','Acute non-Q wave infarction - anteroseptal','1'),
+('CHD','SNOMED','418044006','Acute Q wave infarction - anterolateral','1'),
+('CHD','SNOMED','429391004','Acute Q wave infarction - inferior','1'),
+('CHD','SNOMED','59063002','Acute non-Q wave infarction - lateral','1'),
+('CHD','SNOMED','63670007','Acute Q wave infarction - widespread','1'),
+('CHD','SNOMED','64627002','Acute non-Q wave infarction - widespread','1'),
+('CHD','SNOMED','703165004','Cardiac rupture due to and following acute myocardial infarction','1'),
+('CHD','SNOMED','703210007','Acute ST segment elevation myocardial infarction involving left anterior descending coronary artery','1'),
+('CHD','SNOMED','703212004','Rupture of ventricle due to acute myocardial infarction','1'),
+('CHD','SNOMED','703251009','Acute Q wave myocardial infarction','1'),
+('CHD','SNOMED','703252002','Acute non-Q wave infarction','1'),
+('CHD','SNOMED','703253007','Postoperative transmural myocardial infarction of anterior wall','1'),
+('CHD','SNOMED','703326006','Postoperative transmural myocardial infarction of inferior wall','1'),
+('CHD','SNOMED','703328007','Postoperative subendocardial myocardial infarction','1'),
+('CHD','SNOMED','703330009','Non-Q wave myocardial infarction','1'),
+('CHD','SNOMED','70998009','Myocardial infarction with complication','1'),
+('CHD','SNOMED','71023004','Acute coronary syndrome','1'),
+('CHD','SNOMED','736978009','First myocardial infarction','1'),
+('CHD','SNOMED','836294006','Myocardial infarction in recovery phase','1'),
+('CHD','SNOMED','836295007','Acute myocardial infarction of inferolateral wall','1'),
+('CHD','SNOMED','840309000','Acute ST segment elevation myocardial infarction due to occlusion of proximal portion of anterior descending branch of left coronary artery ','1'),
+('CHD','SNOMED','840312002','Acute ST segment elevation myocardial infarction due to occlusion of mid portion of anterior descending branch of left coronary artery','1'),
+('CHD','SNOMED','840316004','Acute ST segment elevation myocardial infarction due to occlusion of distal portion of anterior descending branch of left coronary artery ','1'),
+('CHD','SNOMED','840609007','Acute ST segment elevation myocardial infarction due to occlusion of anterior descending branch of left coronary artery','1'),
+('CHD','SNOMED','840680009','Acute ST segment elevation myocardial infarction due to occlusion of septal branch of anterior descending branch of left coronary artery','1'),
+('CHD','SNOMED','846668006','Acute ST segment elevation myocardial infarction due to occlusion of diagonal branch of anterior descending branch of left coronary artery','1'),
+('CHD','SNOMED','846683001','Acute ST segment elevation myocardial infarction due to occlusion of intermediate artery','1'),
+('CHD','SNOMED','868217004','Acute ST segment elevation myocardial infarction due to occlusion of distal portion of right coronary artery','1'),
+('CHD','SNOMED','868220007','Acute ST segment elevation myocardial infarction due to occlusion of mid portion of right coronary artery ','1'),
+('CHD','SNOMED','868224003','Acute ST segment elevation myocardial infarction due to occlusion of marginal branch of right coronary artery','1'),
+('CHD','SNOMED','868225002','Acute ST segment elevation myocardial infarction due to occlusion of posterior descending branch of right coronary artery','1'),
+('CHD','SNOMED','868226001','Acute ST segment elevation myocardial infarction due to occlusion of posterior lateral branch of right coronary artery','1'),
+('CHD','SNOMED','896691006','Acute ST segment elevation myocardial infarction due to occlusion of circumflex branch of left coronary artery','1'),
+('CHD','SNOMED','896696001','Acute ST segment elevation myocardial infarction of apex of heart','1'),
+('CHD','SNOMED','896697005','Acute ST segment elevation myocardial infarction of right ventricle','1'),
+('CHD','SNOMED','896689003','Acute myocardial infarction due to occlusion of circumflex branch of left coronary artery','1'),
+('CHD','SNOMED','726499301000119105','Myocardial infarction due to atherothrombotic coronary artery disease','1'),
+('CHD','SNOMED','879955009','Myocardial infarction with non-obstructive coronary artery','1'),
+('CHD','SNOMED','233885007','Post-infarction pericarditis','1'),
+('CHD','SNOMED','429673002','Arteriosclerosis of coronary artery bypass graft','2'),
+('CHD','SNOMED','724431008','Atherosclerosis of autologous coronary artery bypass graft','2'),
+('CHD','SNOMED','723862008','Atherosclerosis of non-autologous coronary artery bypass graft','2'),
+('CHD','SNOMED','11018701000119109','Coronary arteriosclerosis after percutaneous coronary angioplasty','2'),
+('CHD','SNOMED','139011000119104','Coronary arteriosclerosis following coronary artery bypass graft','2'),
+('CHD','SNOMED','16891191000119108','Coronary artery disease due to type 1 diabetes mellitus','2'),
+('CHD','SNOMED','16891151000119103','Coronary artery disease due to type 2 diabetes mellitus','2'),
+('CHD','SNOMED','420006002','Obliterative coronary artery disease','2'),
+('CHD','SNOMED','421327009','Coronary artery stent thrombosis','1'),
+('CHD','SNOMED','28248000','Left anterior descending coronary artery thrombosis','1'),
+('CHD','SNOMED','56276002','Left main coronary artery thrombosis','1'),
+('CHD','SNOMED','10365005','Right main coronary artery thrombosis','1'),
+('CHD','SNOMED','103011000119106','Coronary arteriosclerosis in patient with history of previous myocardial infarction','2'),
+('CHD','SNOMED','285721000119104','History of acute ST segment elevation myocardial infarction','2'),
+('CHD','SNOMED','387785661000119105','History of myocardial infarction due to atherothrombotic coronary artery disease','2'),
+('CHD','SNOMED','776219771000119107','History of myocardial infarction due to demand ischemia','2'),
+('CHD','SNOMED','50570003','Aneurysm of coronary vessels','2'),
+('CHD','SNOMED','16025471000119107','Aneurysm of coronary artery due to and following acute febrile mucocutaneous lymph node syndrome','1'),
+('CHD','SNOMED','735565009','Perforation of coronary artery co-occurrent and due to aneurysm of coronary artery','1'),
+('CHD','SNOMED','735566005','Rupture of coronary artery co-occurrent and due to aneurysm of coronary artery','1'),
+('CHD','SNOMED','445512009','Calcification of coronary artery','2'),
+('CHD','SNOMED','429245005','Recurrent coronary arteriosclerosis after percutaneous transluminal coronary angioplasty','2'),
+('CHD','SNOMED','427919004','Coronary arteriosclerosis caused by radiation','1'),
+('CHD','SNOMED','371805005','Significant coronary bypass graft disease ','2'),
+('CHD','SNOMED','62827000','Coronary arteritis ','2'),
+('CHD','SNOMED','29899005','Coronary artery embolism','1'),
+('CHD','SNOMED','286391000119108','Acquired coronary artery fistula','1'),
+('CHD','SNOMED','703386009','Iatrogenic coronary artery fistula ','2'),
+('CHD','SNOMED','234010000','Coronary artery perforation','1'),
+('CHD','SNOMED','28931004','Coronary artery rupture','1'),
+('CHD','SNOMED','233970002','Coronary artery stenosis','2'),
+('CHD','SNOMED','251024009','Coronary graft stenosis','2'),
+('CHD','SNOMED','59062007','Coronary stricture','2'),
+('CHD','SNOMED','876859003','Stenosis of anterior descending branch of left coronary artery','2'),
+('CHD','SNOMED','1254663008','Stenosis of distal portion of anterior descending branch of left coronary artery','2'),
+('CHD','SNOMED','1255266003','Stenosis of mid portion of anterior descending branch of left coronary artery','2'),
+('CHD','SNOMED','1255623001','Stenosis of ostium of anterior descending branch of left coronary artery','2'),
+('CHD','SNOMED','1255265004','Stenosis of proximal portion of anterior descending branch of left coronary artery','2'),
+('CHD','SNOMED','876858006','Stenosis of circumflex branch of left coronary artery','2'),
+('CHD','SNOMED','1255258007','Stenosis of distal portion of circumflex branch of left coronary artery ','2'),
+('CHD','SNOMED','1255257002','Stenosis of mid portion of circumflex branch of left coronary artery ','2'),
+('CHD','SNOMED','1255624007','Stenosis of ostium of circumflex branch of left coronary artery','2'),
+('CHD','SNOMED','1255256006','Stenosis of proximal portion of circumflex branch of left coronary artery ','2'),
+('CHD','SNOMED','1255264000','Stenosis of coronary intermediate artery ','2'),
+('CHD','SNOMED','1254664002','Stenosis of diagonal branch of anterior descending branch of left coronary artery','2'),
+('CHD','SNOMED','876857001','Stenosis of left coronary artery main stem ','2'),
+('CHD','SNOMED','1255621004','Stenosis of distal segment of left coronary artery main stem','2'),
+('CHD','SNOMED','1255622006','Stenosis of mid segment of left coronary artery main stem','2'),
+('CHD','SNOMED','1255189004','Stenosis of left posterior descending circumflex coronary arter','2'),
+('CHD','SNOMED','1255188007','Stenosis of left posterior lateral branch of circumflex branch of left coronary artery','2'),
+('CHD','SNOMED','1255187002','Stenosis of obtuse marginal branch of circumflex branch of left coronary artery','2'),
+('CHD','SNOMED','876856005','Stenosis of right coronary artery','2'),
+('CHD','SNOMED','1254659001','Stenosis of distal portion of right coronary artery','2'),
+('CHD','SNOMED','1254658009','Stenosis of mid portion of right coronary artery','2'),
+('CHD','SNOMED','1254662003','Stenosis of posterior descending branch of right coronary artery','2'),
+('CHD','SNOMED','1254661005','Stenosis of posterior lateral branch of right coronary artery','2'),
+('CHD','SNOMED','1254657004','Stenosis of proximal portion of right coronary artery','2'),
+('CHD','SNOMED','1254665001','Stenosis of septal branch of anterior descending branch of left coronary artery','2'),
+('CHD','SNOMED','63739005','Coronary occlusion','1'),
+('CHD','SNOMED','62207008',' Syphilitic ostial coronary disease (disorder)"                                                ','1'),
+('CHD','SNOMED','123641001',' Left coronary artery occlusion (disorder)"                                                   ','1'),
+('CHD','SNOMED','123642008',' Right coronary artery occlusion (disorder)"                                                  ','1'),
+('CHD','SNOMED','213037002',' Mechanical complication of coronary bypass (disorder)"                                       ','1'),
+('CHD','SNOMED','240567009',' Syphilitic coronary artery disease (disorder)"                                               ','1'),
+('CHD','SNOMED','408546009',' Coronary artery bypass graft occlusion (disorder)"                                           ','1'),
+('CHD','SNOMED','442224005',' Arteriosclerosis of autologous vein coronary artery bypass graft (disorder)"                 ','2'),
+('CHD','SNOMED','442240008',' Arteriosclerosis of nonautologous coronary artery bypass graft (disorder)"                   ','2'),
+('CHD','SNOMED','442421004',' Arteriosclerosis of arterial coronary artery bypass graft (disorder)"                        ','2'),
+('CHD','SNOMED','444855007',' Arteriosclerosis of coronary artery bypass graft of transplanted heart (disorder)"           ','2'),
+('CHD','SNOMED','444856008',' Arteriosclerosis of internal mammary artery coronary artery bypass graft (disorder)"         ','2'),
+('CHD','SNOMED','703356002',' Coronary artery occlusion due to neoplastic disease (disorder)"                              ','1'),
+('CHD','SNOMED','732230001',' Dissection of coronary artery (disorder)"                                                    ','1'),
+('CHD','SNOMED','840310005',' Occlusion of proximal portion of anterior descending branch of left coronary artery (diso..."','1'),
+('CHD','SNOMED','840313007',' Occlusion of mid portion of anterior descending branch of left coronary artery (disorder)"   ','1'),
+('CHD','SNOMED','840315000',' Occlusion of distal portion of anterior descending branch of left coronary artery (disorder)"','1'),
+('CHD','SNOMED','840608004',' Occlusion of anterior descending branch of left coronary artery (disorder)"                  ','1'),
+('CHD','SNOMED','840679006',' Occlusion of septal branch of anterior descending branch of left coronary artery (disorder)" ','1'),
+('CHD','SNOMED','846667001',' Occlusion of diagonal branch of anterior descending branch of left coronary artery (disor..."','1'),
+('CHD','SNOMED','846684007',' Occlusion of intermediate artery (disorder)"                                                 ','1'),
+('CHD','SNOMED','868215007',' Occlusion of proximal portion of right coronary artery (disorder)"                           ','1'),
+('CHD','SNOMED','868216008',' Occlusion of distal portion of right coronary artery (disorder)"                             ','1'),
+('CHD','SNOMED','868219001',' Occlusion of mid portion of right coronary artery (disorder)"                                ','1'),
+('CHD','SNOMED','868221006',' Occlusion of marginal branch of right coronary artery (disorder)"                            ','1'),
+('CHD','SNOMED','868222004',' Occlusion of posterior descending branch of right coronary artery (disorder)"                ','1'),
+('CHD','SNOMED','868223009',' Occlusion of posterior lateral branch of right coronary artery (disorder)"                   ','1'),
+('CHD','SNOMED','896690007',' Occlusion of circumflex branch of left coronary artery (disorder)"                           ','1'),
+('CHD','SNOMED','1197364005',' Idiopathic spontaneous coronary artery dissection (disorder)"                               ','1'),
+('CHD','SNOMED','1204127004',' Chronic dissection of coronary artery (disorder)"                                           ','2'),
+('CHD','SNOMED','1204153007',' Acute dissection of coronary artery (disorder)"                                             ','1'),
+('CHD','SNOMED','1254660006',' Stenosis of marginal branch of right coronary artery (disorder)"                            ','2'),
+('CHD','SNOMED','1269257006',' Arteriosclerosis of nonautologous biological coronary artery bypass graft (disorder)"       ','2'),
+('CHD','SNOMED','44761000087104',' Occlusion of distal portion of circumflex branch of left coronary artery (disorder)"    ','1'),
+('CHD','SNOMED','44771000087108',' Occlusion of mid portion of circumflex branch of left coronary artery (disorder)"       ','1'),
+('CHD','SNOMED','44781000087105',' Occlusion of obtuse marginal branch of circumflex branch of left coronary artery (di..."','1'),
+('CHD','SNOMED','44791000087107',' Occlusion of posterior lateral branch of circumflex branch of left coronary artery (..."','1'),
+('CHD','SNOMED','44801000087106',' Occlusion of proximal portion of circumflex branch of left coronary artery (disorder)"  ','1'),
+('CHD','SNOMED','117051000119103',' Chronic total occlusion of coronary artery (disorder)"                                 ','2'),
+('CHD','SNOMED','139971000119106',' Thrombosis of coronary artery bypass graft (disorder)"                                 ','1'),
+('CHD','SNOMED','285141000119106',' Arteriosclerosis of autologous arterial coronary artery bypass graft (disorder)"       ','2'),
+('CHD','SNOMED','285151000119108',' Arteriosclerosis of autologous coronary artery bypass graft (disorder)"                ','2'),
+('CHD','SNOMED','11018701000119100',' Coronary arteriosclerosis after percutaneous coronary angioplasty (disorder)"        ','2'),
+('CHD','SNOMED','16025471000119100',' Aneurysm of coronary artery due to and following acute febrile mucocutaneous lymp..."','1'),
+('CHD','SNOMED','16891151000119100',' Coronary artery disease due to type 2 diabetes mellitus (disorder)"                  ','2'),
+('CHD','SNOMED','16891191000119100',' Coronary artery disease due to type 1 diabetes mellitus (disorder)"   ','2'),
+('CHD','SNOMED','441541008','Takotsubo cardiomyopathy','1'),
+('CHD','SNOMED','32574007','Past myocardial infarction diagnosed on electrocardiogram AND/OR other special investigation, but currently presenting no symptoms (disorder)','1'),
+('CHD','SNOMED','281091000','Ischemic myocardial dysfunction (disorder)','2'),
+('CHD','SNOMED','697976003','Microvascular ischemia of myocardium (disorder)','1'),
+('CHD','SNOMED','712866001','Resting ischemia co-occurrent and due to ischemic heart disease (disorder)','2'),
+('CHD','SNOMED','713405002','Subacute ischemic heart disease (disorder)','1'),
+('CHD','SNOMED','723858002','Ventricular aneurysm due to and following acute myocardial infarction (disorder)','1'),
+('CHD','SNOMED','868214006','Acute ST segment elevation myocardial infarction due to occlusion of proximal portion of right coronary artery (disorder)','1'),
+('CHD','SNOMED','16528621000119102','Rupture of interventricular septum following acute myocardial infarction (disorder)','1'),
+
+ ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_CHD, 'code')
+
+# COMMAND ----------
+
+# MAGIC
+# MAGIC %md ## 1.3. Arrhythmias (AR)
+
+# COMMAND ----------
+
+codelist_AR = spark.createDataFrame(
+  [ 
+
+('ARR','ICD10','I440','Atrioventricular block, first degree','2'),
+('ARR','ICD10','I441','Atrioventricular block, second degree','2'),
+('ARR','ICD10','I442','Atrioventricular block, complete','1'),
+('ARR','ICD10','I443','Other and unspecified atrioventricular block','2'),
+('ARR','ICD10','I444','Left anterior fascicular block','2'),
+('ARR','ICD10','I445','Left posterior fascicular block','2'),
+('ARR','ICD10','I446','Other and unspecified fascicular block','2'),
+('ARR','ICD10','I447','Left bundle-branch block, unspecified','2'),
+('ARR','ICD10','I45','Other conduction disorders','2'),
+('ARR','ICD10','I460','Cardiac arrest with successful resuscitation','1'),
+('ARR','ICD10','I469','Cardiac arrest, unspecified','1'),
+('ARR','ICD10','I470','Re-entry ventricular arrhythmia','2'),
+('ARR','ICD10','I472','Ventricular tachycardia','2'),
+('ARR','ICD10','I479','Paroxysmal tachycardia, unspecified','2'),
+('ARR','ICD10','I480','Paroxysmal atrial fibrillation','1'),
+('ARR','ICD10','I481','Persistent atrial fibrillation','2'),
+('ARR','ICD10','I482','Chronic atrial fibrillation','2'),
+('ARR','ICD10','I483','Typical atrial flutter','1'),
+('ARR','ICD10','I484','Atypical atrial flutter','1'),
+('ARR','ICD10','I489','Atrial fibrillation and atrial flutter, unspecified','1'),
+('ARR','ICD10','I490','Ventricular fibrillation and flutter','1'),
+('ARR','ICD10','I491','Atrial premature depolarization','1'),
+('ARR','ICD10','I492','Junctional premature depolarization','1'),
+('ARR','ICD10','I493','Ventricular premature depolarization','1'),
+('ARR','ICD10','I494','Other and unspecified premature depolarization','2'),
+('ARR','ICD10','I495','Sick sinus syndrome','2'),
+('ARR','ICD10','I498','Other specified cardiac arrhythmias','1'),
+('ARR','ICD10','I499','Cardiac arrhythmia, unspecified','1'),
+('ARR','SNOMED','300996004','Controlled atrial fibrillation','1'),
+('ARR','SNOMED','233911009','Non-rheumatic atrial fibrillation','1'),
+('ARR','SNOMED','233910005','Lone atrial fibrillation','1'),
+('ARR','SNOMED','440028005','Permanent atrial fibrillation (disorder)','1'),
+('ARR','SNOMED','120041000119109','Atrial fibrillation with rapid ventricular response','1'),
+('ARR','SNOMED','720448006','Typical atrial flutter (disorder)','1'),
+('ARR','SNOMED','314208002','Rapid atrial fibrillation','1'),
+('ARR','SNOMED','5370000','Atrial flutter','1'),
+('ARR','SNOMED','425615007','Chronic atrial flutter (disorder)','1'),
+('ARR','SNOMED','67198005','Paroxysmal supraventricular tachycardia','1'),
+('ARR','SNOMED','706923002','Longstanding persistent atrial fibrillation (disorder)','1'),
+('ARR','SNOMED','233893007','Re-entrant atrial tachycardia','1'),
+('ARR','SNOMED','426749004','Chronic atrial fibrillation (disorder)','1'),
+('ARR','SNOMED','1010405004','Paroxysmal atrial fibrillation with rapid ventricular response','1'),
+('ARR','SNOMED','762247006','Preexcited atrial fibrillation (disorder)','1'),
+('ARR','SNOMED','233900001','Supraventricular tachycardia with functional bundle branch block','1'),
+('ARR','SNOMED','427665004','Paroxysmal atrial flutter (disorder)','1'),
+('ARR','SNOMED','49436004','Atrial fibrillation','1'),
+('ARR','SNOMED','282825002','AF - Paroxysmal atrial fibrillation','1'),
+('ARR','SNOMED','251114004','Intermittent second degree atrioventricular block','1'),
+('ARR','SNOMED','195080001','Atrial fibrillation and flutter','1'),
+('ARR','SNOMED','15964901000119107','Atypical atrial flutter ','1'),
+('ARR','SNOMED','440059007','Persistent atrial fibrillation (disorder)','1'),
+('ARR','SNOMED','195069001','Atrial paroxysmal tachycardia','1'),
+
+
+
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_AR, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md ## 1.4. Heart Failure (HF)
+
+# COMMAND ----------
+
+codelist_HF = spark.createDataFrame(
+  [
+    
+('HF','ICD10','I50','Heart failure','1'),
+('HF','ICD10','I420','Dilated cardiomyopathy (Congestive cardiomyopathy)','1'),
+('HF','ICD10','I429','Cardiomyopathy, unspecified (Cardiomyopathy (primary) (secondary) NOS)','1'),
+('HF','ICD10','I110','Hypertensive heart disease with (congestive) heart failure','1'),
+('HF','ICD10','I255','Ischaemic cardiomyopathy','1'),
+('HF','ICD10','I132','Hypertensive heart and renal disease with both (congestive) heart failure and renal failure ','1'),
+('HF','ICD10','I130','Hypertensive heart and renal disease with (congestive) heart failure','1'),
+('HF','SNOMED','364006','Acute left-sided heart failure (disorder)','1'),
+('HF','SNOMED','5148006','Hypertensive heart disease with congestive heart failure (disorder)','1'),
+('HF','SNOMED','5375005','Chronic left-sided congestive heart failure (disorder)','2'),
+('HF','SNOMED','10091002','High output heart failure (disorder)','1'),
+('HF','SNOMED','10335000','Chronic right-sided heart failure (disorder)','2'),
+('HF','SNOMED','10633002','Acute congestive heart failure (disorder)','1'),
+('HF','SNOMED','13839000',"Bernheim's syndrome (disorder)",'1'),
+('HF','SNOMED','20529002','Secondary dilated cardiomyopathy (disorder)','1'),
+('HF','SNOMED','25544003','Low output heart failure (disorder)','1'),
+('HF','SNOMED','42343007','Congestive heart failure (disorder)','1'),
+('HF','SNOMED','43736008','Rheumatic left ventricular failure (disorder)','1'),
+('HF','SNOMED','44088000','Low cardiac output syndrome (disorder)','1'),
+('HF','SNOMED','44313006','Right heart failure secondary to left heart failure (disorder)','1'),
+('HF','SNOMED','46113002','Hypertensive heart failure (disorder)','1'),
+('HF','SNOMED','48447003','Chronic heart failure (disorder)','2'),
+('HF','SNOMED','55565007','Cardiac failure after obstetrical surgery AND/OR other procedure including delivery (disorder)','1'),
+('HF','SNOMED','56675007','Acute heart failure (disorder)','1'),
+('HF','SNOMED','66989003','Chronic right-sided congestive heart failure (disorder)','1'),
+('HF','SNOMED','71892000','Cardiac asthma (disorder)','1'),
+('HF','SNOMED','79955004','Chronic cor pulmonale (disorder)','1'),
+('HF','SNOMED','80479009','Acute right-sided congestive heart failure (disorder)','1'),
+('HF','SNOMED','82523003','Congestive rheumatic heart failure (disorder)','1'),
+('HF','SNOMED','83105008','Malignant hypertensive heart disease with congestive heart failure (disorder)','1'),
+('HF','SNOMED','83521008','Dilated cardiomyopathy caused by alcohol (disorder)','1'),
+('HF','SNOMED','84114007','Heart failure (disorder)','1'),
+('HF','SNOMED','85232009','Left heart failure (disorder)','1'),
+('HF','SNOMED','85898001','Cardiomyopathy (disorder)','1'),
+('HF','SNOMED','88805009','Chronic congestive heart failure (disorder)','2'),
+('HF','SNOMED','90727007','Pleural effusion due to congestive heart failure (disorder)','1'),
+('HF','SNOMED','92506005','Biventricular congestive heart failure (disorder)','1'),
+('HF','SNOMED','111283005','Chronic left-sided heart failure (disorder)','2'),
+('HF','SNOMED','128404006','Right heart failure (disorder)','1'),
+('HF','SNOMED','134378009','Congestive heart failure monitoring (regime/therapy)','2'),
+('HF','SNOMED','134401001','Left ventricular systolic dysfunction (disorder)','1'),
+('HF','SNOMED','161505003','History of heart failure (situation)','2'),
+('HF','SNOMED','194767001','Benign hypertensive heart disease with congestive cardiac failure (disorder)','1'),
+('HF','SNOMED','194779001','Hypertensive heart and renal disease with (congestive) heart failure (disorder)','1'),
+('HF','SNOMED','194781004','Hypertensive heart and renal disease with both (congestive) heart failure and renal failure (disorder)','1'),
+('HF','SNOMED','195021004','Primary dilated cardiomyopathy (disorder)','1'),
+('HF','SNOMED','195108009','Heart failure: [right] or [congestive] (disorder)','1'),
+('HF','SNOMED','195111005','Decompensated cardiac failure (disorder)','1'),
+('HF','SNOMED','195112003','Compensated cardiac failure (disorder)','1'),
+('HF','SNOMED','195114002','Acute left ventricular failure (disorder)','1'),
+('HF','SNOMED','233871002','Congestive obstructive cardiomyopathy (disorder)','1'),
+('HF','SNOMED','233924009','Heart failure as a complication of care (disorder)','1'),
+('HF','SNOMED','236003008','Cardiac ascites (disorder)','1'),
+('HF','SNOMED','275514001','Impaired left ventricular function (finding)','1'),
+('HF','SNOMED','309634009','History of heart failure in last year (situation)','2'),
+('HF','SNOMED','314206003','Refractory heart failure (disorder)','1'),
+('HF','SNOMED','359617009','Acute right-sided heart failure (disorder)','1'),
+('HF','SNOMED','359620001','Acute right heart failure (disorder)','1'),
+('HF','SNOMED','360371003','Acute cardiac pulmonary edema (disorder)','1'),
+('HF','SNOMED','367363000','Right ventricular failure (disorder)','1'),
+('HF','SNOMED','390884006','Heart failure follow-up (finding)','1'),
+('HF','SNOMED','390885007','Heart failure annual review (regime/therapy)','1'),
+('HF','SNOMED','395105005','Heart failure confirmed (situation)','1'),
+('HF','SNOMED','395704004','Left ventricular diastolic dysfunction (disorder)','1'),
+('HF','SNOMED','399020009','Congestive cardiomyopathy (disorder)','1'),
+('HF','SNOMED','407596008','Echocardiogram shows left ventricular systolic dysfunction (finding)','1'),
+('HF','SNOMED','407597004','Echocardiogram shows left ventricular diastolic dysfunction (finding)','1'),
+('HF','SNOMED','416683003','Emergency hospital admission for heart failure (procedure)','1'),
+('HF','SNOMED','417359009','Seen by community heart failure nurse (finding)','1'),
+('HF','SNOMED','417996009','Systolic heart failure (disorder)','1'),
+('HF','SNOMED','418304008','Diastolic heart failure (disorder)','1'),
+('HF','SNOMED','420300004','New York Heart Association Classification - Class I (finding)','2'),
+('HF','SNOMED','420816009','New York Heart Association Classification (assessment scale)','2'),
+('HF','SNOMED','420913000','New York Heart Association Classification - Class III (finding)','2'),
+('HF','SNOMED','421704003','New York Heart Association Classification - Class II (finding)','2'),
+('HF','SNOMED','422293003','New York Heart Association Classification - Class IV (finding)','2'),
+('HF','SNOMED','424404003','Decompensated chronic heart failure (disorder)','1'),
+('HF','SNOMED','426012001','Right heart failure due to pulmonary hypertension (disorder)','1'),
+('HF','SNOMED','426263006','Congestive heart failure due to left ventricular systolic dysfunction (disorder)','1'),
+('HF','SNOMED','426611007','Congestive heart failure due to valvular disease (disorder)','1'),
+('HF','SNOMED','429589006','Left ventricular cardiac dysfunction (disorder)','1'),
+('HF','SNOMED','430396006','Chronic systolic dysfunction of left ventricle (disorder)','2'),
+('HF','SNOMED','441481004','Chronic systolic heart failure (disorder)','2'),
+('HF','SNOMED','441530006','Chronic diastolic heart failure (disorder)','2'),
+('HF','SNOMED','443253003','Acute on chronic systolic heart failure (disorder)','1'),
+('HF','SNOMED','443254009','Acute systolic heart failure (disorder)','1'),
+('HF','SNOMED','443343001','Acute diastolic heart failure (disorder)','1'),
+('HF','SNOMED','443344007','Acute on chronic diastolic heart failure (disorder)','1'),
+('HF','SNOMED','446221000','Heart failure with normal ejection fraction (disorder)','1'),
+('HF','SNOMED','471880001','Heart failure due to end stage congenital heart disease (disorder)','1'),
+('HF','SNOMED','609507007','Induced termination of pregnancy complicated by cardiac failure (disorder)','1'),
+('HF','SNOMED','697925001','Pulmonary hypertension due to systolic systemic ventricular dysfunction (disorder)','1'),
+('HF','SNOMED','697926000','Pulmonary hypertension due to diastolic systemic ventricular dysfunction (disorder)','1'),
+('HF','SNOMED','698592004','Asymptomatic left ventricular systolic dysfunction (disorder)','1'),
+('HF','SNOMED','698594003','Symptomatic congestive heart failure (disorder)','1'),
+('HF','SNOMED','703272007','Heart failure with reduced ejection fraction (disorder)','1'),
+('HF','SNOMED','703273002','Heart failure with reduced ejection fraction due to coronary artery disease (disorder)','1'),
+('HF','SNOMED','703274008','Heart failure with reduced ejection fraction due to myocarditis (disorder)','1'),
+('HF','SNOMED','703275009','Heart failure with reduced ejection fraction due to cardiomyopathy (disorder)','1'),
+('HF','SNOMED','703276005','Heart failure with reduced ejection fraction due to heart valve disease (disorder)','1'),
+('HF','SNOMED','717840005','Congestive heart failure stage B (disorder)','1'),
+('HF','SNOMED','788950000','Heart failure with mid range ejection fraction (disorder)','1'),
+('HF','SNOMED','7381000175100','Reduced ejection fraction co-occurrent and due to chronic heart failure (disorder)','2'),
+('HF','SNOMED','7391000175102','Reduced ejection fraction co-occurrent and due to acute heart failure (disorder)','1'),
+('HF','SNOMED','7411000175102','Chronic heart failure co-occurrent with normal ejection fraction (disorder)','2'),
+('HF','SNOMED','7421000175106','Acute heart failure co-occurrent with normal ejection fraction (disorder)','1'),
+('HF','SNOMED','23341000119109','Congestive heart failure with right heart failure (disorder)','1'),
+('HF','SNOMED','67431000119105','Congestive heart failure stage D (disorder)','1'),
+('HF','SNOMED','67441000119101','Congestive heart failure stage C (disorder)','1'),
+('HF','SNOMED','67451000119104','Congestive heart failure stage B (disorder)','1'),
+('HF','SNOMED','72481000119103','Congestive heart failure as early postoperative complication (disorder)','1'),
+('HF','SNOMED','96311000119109','Exacerbation of congestive heart failure (disorder)','1'),
+('HF','SNOMED','101281000119107','Congestive heart failure due to cardiomyopathy (disorder)','1'),
+('HF','SNOMED','120851000119104','Systolic heart failure stage D (disorder)','1'),
+('HF','SNOMED','120861000119102','Systolic heart failure stage C (disorder)','1'),
+('HF','SNOMED','120871000119108','Systolic heart failure stage B (disorder)','1'),
+('HF','SNOMED','120881000119106','Diastolic heart failure stage D (disorder)','1'),
+('HF','SNOMED','120891000119109','Diastolic heart failure stage C (disorder)','1'),
+('HF','SNOMED','120901000119108','Diastolic heart failure stage B (disorder)','1'),
+('HF','SNOMED','153931000119109','Acute combined systolic and diastolic heart failure (disorder)','1'),
+('HF','SNOMED','153951000119103','Acute on chronic combined systolic and diastolic heart failure (disorder)','1'),
+('HF','SNOMED','285211000119102','Congestive heart failure as post-operative complication of cardiac surgery (disorder)','1'),
+('HF','SNOMED','285221000119109','Congestive heart failure as post-operative complication of non-cardiac surgery (disorder)','1'),
+('HF','SNOMED','15629541000119106','Congestive heart failure stage C due to ischemic cardiomyopathy (disorder)','1'),
+('HF','SNOMED','15629591000119103','Congestive heart failure stage B due to ischemic cardiomyopathy (disorder)','1'),
+('HF','SNOMED','15629641000119107','Systolic heart failure stage B due to ischemic cardiomyopathy (disorder)','1'),
+('HF','SNOMED','16838951000119100','Acute on chronic right-sided congestive heart failure (disorder)','1'),
+('HF','SNOMED','698296002','Acute exacerbation of chronic congestive heart failure (disorder)','1'),
+('HF','SNOMED','898208007','Heart failure due to thyrotoxicosis (disorder)','1'),
+('HF','SNOMED','153941000119100','Chronic combined systolic and diastolic heart failure (disorder)','2'),
+('HF','SNOMED','5053004','Cardiac insufficiency due to prosthesis (disorder)','1'),
+('HF','SNOMED','16253001','Dilated peripartum cardiomyopathy (disorder)','1'),
+('HF','SNOMED','24841007','Cardiorespiratory failure during AND/OR resulting from a procedure (disorder)','1'),
+('HF','SNOMED','33644002','Postvalvulotomy syndrome (disorder)','1'),
+('HF','SNOMED','60856006','Cardiac insufficiency following cardiac surgery (disorder)','1'),
+('HF','SNOMED','62377009','Postpartum cardiomyopathy (disorder)','1'),
+('HF','SNOMED','74960003','Acute left-sided congestive heart failure (disorder)','1'),
+('HF','SNOMED','78862003',"Ayerza's syndrome (disorder)",'1'),
+('HF','SNOMED','83291003','Cor pulmonale (disorder)','1'),
+('HF','SNOMED','89819002','Cardiac insufficiency during AND/OR resulting from a procedure (disorder)','1'),
+('HF','SNOMED','276514007','Neonatal cardiac failure (disorder)','1'),
+('HF','SNOMED','1204200007','Left ventricular failure with normal ejection fraction due to valvular heart disease (disorder)','1'),
+('HF','SNOMED','1204203009','Left ventricular failure with normal ejection fraction due to coronary arteriosclerosis (disorder)','1'),
+('HF','SNOMED','1204204003','Left ventricular failure with normal ejection fraction due to myocarditis (disorder)','1'),
+('HF','SNOMED','1204206001','Left ventricular failure with normal ejection fraction due to cardiomyopathy (disorder)','1'),
+('HF','SNOMED','1204462004','Left ventricular failure with sepsis (disorder)','1'),
+('HF','SNOMED','1208843003','Right ventricular failure due to heart valve disorder (disorder)','1'),
+('HF','SNOMED','1208846006','Right ventricular failure due to disorder of lung (disorder)','1'),
+('HF','SNOMED','1208848007','Right ventricular failure due to disorder of pulmonary circulation (disorder)','1'),
+('HF','SNOMED','1208850004','Right ventricular failure due to right ventricular infarction (disorder)','1'),
+('HF','SNOMED','1264003007','Acute right ventricular failure following incision of heart (disorder)','1'),
+('HF','SNOMED','15629741000119100','Systolic heart failure stage C due to ischemic cardiomyopathy (disorder)','1'),
+('HF','SNOMED','35928006','Nocturnal angina (disorder)','1'),
+('HF','SNOMED','59021001','Angina decubitus (disorder)','1'),
+
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_HF, 'code')
+
+# COMMAND ----------
+
+# MAGIC
+# MAGIC
+# MAGIC %md ## 1.5. Cerebrovascular diseases (stroke)
+
+# COMMAND ----------
+
+codelist_stroke = spark.createDataFrame(
+  [
+('stroke','ICD10','G450','Vertebro-basilar artery syndrome','2'),
+('stroke','ICD10','G451','Carotid artery syndrome (hemispheric)','2'),
+('stroke','ICD10','G452','Multiple and bilateral precerebral artery syndromes','2'),
+('stroke','ICD10','G453','Amaurosis fugax','2'),
+('stroke','ICD10','G454','Transient global amnesia','2'),
+('stroke','ICD10','G458','Other transient cerebral ischaemic attacks and related syndromes','2'),
+('stroke','ICD10','G459','Transient cerebral ischaemic attack, unspecified','2'),
+('stroke','ICD10','G460','Middle cerebral artery syndrome','1'),
+('stroke','ICD10','G461','Anterior cerebral artery syndrome','1'),
+('stroke','ICD10','G462','Posterior cerebral artery syndrome','2'),
+('stroke','ICD10','G463','Brain stem stroke syndrome','1'),
+('stroke','ICD10','G464','Cerebellar stroke syndrome','1'),
+('stroke','ICD10','G465','Pure motor lacunar syndrome','1'),
+('stroke','ICD10','G466','Pure sensory lacunar syndrome','1'),
+('stroke','ICD10','G467','Other lacunar syndromes','1'),
+('stroke','ICD10','G468','Other vascular syndromes of brain in cerebrovascular diseases','1'),
+('stroke','ICD10','I60','Subarachnoid haemorrhage','1'),
+('stroke','ICD10','I61','Intracerebral haemorrhage','1'),
+('stroke','ICD10','I62','Other nontraumatic intracranial haemorrhage','1'),
+('stroke','ICD10','I63','Cerebral infarction','1'),
+('stroke','ICD10','I64','Stroke, not specified as haemorrhage or infarction','1'),
+('stroke','ICD10','I65','Occlusion and stenosis of precerebral arteries, not resulting in cerebral infarction','2'),
+('stroke','ICD10','I66','Occlusion and stenosis of cerebral arteries, not resulting in cerebral infarction','2'),
+('stroke','ICD10','I670','Dissection of cerebral arteries, nonruptured','1'),
+('stroke','ICD10','I671','Cerebral aneurysm, nonruptured','2'),
+('stroke','ICD10','I672','Cerebral atherosclerosis','2'),
+('stroke','ICD10','I673','Progressive vascular leukoencephalopathy','1'),
+('stroke','ICD10','I674','Hypertensive encephalopathy','1'),
+('stroke','ICD10','I675','Moyamoya disease','2'),
+('stroke','ICD10','I676','Nonpyogenic thrombosis of intracranial venous system','1'),
+('stroke','ICD10','I677','Cerebral arteritis, not elsewhere classified','1'),
+('stroke','ICD10','I678','Other specified cerebrovascular diseases','2'),
+('stroke','ICD10','I679','Cerebrovascular disease, unspecified','2'),
+('stroke','ICD10','I68','Cerebrovascular disorders in diseases classified elsewhere (e.g Cerebral amyloid angiopathy, vasuclitits, etc)','1'),
+('stroke','ICD10','I69','Sequelae of cerebrovascular disease','1'),
+('stroke','SNOMED','102831000119104','Paralytic syndrome of both lower limbs as sequela of stroke (disorder)','1'),
+('stroke','SNOMED','10349009','Multi-infarct dementia with delirium (disorder)','1'),
+('stroke','SNOMED','103761000119107','Paralytic syndrome of all four limbs as sequela of stroke (disorder)','1'),
+('stroke','SNOMED','106021000119105','Multi-infarct dementia due to atherosclerosis (disorder)','1'),
+('stroke','SNOMED','107557061000119108','Cerebrovascular accident due to embolism of bilateral anterior cerebral arteries (disorder)','1'),
+('stroke','SNOMED','1078001000000105','Haemorrhagic stroke','1'),
+('stroke','SNOMED','108691000119102','Spasticity as sequela of stroke (disorder)','1'),
+('stroke','SNOMED','1089411000000104','Cerebral infarction due to occlusion of cerebral artery','1'),
+('stroke','SNOMED','1089421000000105','Cerebral infarction due to stenosis of cerebral artery','1'),
+('stroke','SNOMED','111297002','Nonparalytic stroke (disorder)','1'),
+('stroke','SNOMED','1131000119105','Sequela of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','116288000','Paralytic stroke (disorder)','1'),
+('stroke','SNOMED','1162966002','Spontaneous epidural intracranial hematoma (disorder)','1'),
+('stroke','SNOMED','1163482004','Hemorrhagic cerebral infarction caused by Aspergillus (disorder)','1'),
+('stroke','SNOMED','117776611000119102','Cerebrovascular accident due to occlusion of left posterior communicating artery (disorder)','1'),
+('stroke','SNOMED','118951000119103','History of thrombotic stroke without residual deficits (situation)','2'),
+('stroke','SNOMED','118961000119101','History of hemorrhagic cerebrovascular accident without residual deficits (situation)','2'),
+('stroke','SNOMED','118971000119107','History of embolic stroke without deficits (situation)','2'),
+('stroke','SNOMED','1204125007','Cryptogenic spontaneous subarachnoid hemorrhage of brain (disorder)','1'),
+('stroke','SNOMED','1208871009','Transient ischemic attack co-occurrent with subarachnoid hemorrhage (disorder)','2'),
+('stroke','SNOMED','12204031000119101','Cerebrovascular accident following procedure on heart (disorder)','1'),
+('stroke','SNOMED','12237911000119109','Amaurosis fugax of left eye (disorder)','2'),
+('stroke','SNOMED','12237951000119105','Amaurosis fugax of right eye (disorder)','2'),
+('stroke','SNOMED','12242711000119109','Weakness of left facial muscle due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','12242751000119105','Weakness of right facial muscle due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','1231168008','Malignant middle cerebral artery syndrome (disorder)','1'),
+('stroke','SNOMED','12367511000119101','Paraplegia due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','125081000119106','Cerebral infarction due to occlusion of precerebral artery','1'),
+('stroke','SNOMED','1258879002','Intracranial hemorrhage following administration of thrombolytic agent (disorder)','1'),
+('stroke','SNOMED','1260271009','Hemorrhagic cerebral infarction due to hypertension (disorder)','1'),
+('stroke','SNOMED','1269237007','Cerebrovascular accident due to thrombosis of anterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','1269248000','Cerebrovascular accident due to occlusion of anterior choroidal artery (disorder)','1'),
+('stroke','SNOMED','1269555002','Non-traumatic hemorrhage of subarachnoid space from vertebral artery (disorder)','1'),
+('stroke','SNOMED','13016361000119101','History of amaurosis fugax','2'),
+('stroke','SNOMED','134771000119108','Alteration of sensation as late effect of stroke (disorder)','1'),
+('stroke','SNOMED','137991000119103','Seizure disorder as sequela of stroke (disorder)','1'),
+('stroke','SNOMED','1386000','Intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','140221000119109','History of transient ischemic attack due to embolism','2'),
+('stroke','SNOMED','14070001','Multi-infarct dementia with depression (disorder)','1'),
+('stroke','SNOMED','140701000119108','History of hemorrhagic stroke with hemiparesis (situation)','2'),
+('stroke','SNOMED','140711000119106','History of hemorrhagic stroke with hemiplegia (situation)','2'),
+('stroke','SNOMED','140881000119109','Compression of brain co-occurrent and due to spontaneous cerebral hemorrhage (disorder)','1'),
+('stroke','SNOMED','140911000119109','Ischemic stroke with coma (disorder)','1'),
+('stroke','SNOMED','140921000119102','Ischemic stroke without coma','1'),
+('stroke','SNOMED','141091000119105','Compression of brain co-occurrent and due to nontraumatic subarachnoid hemorrhage (disorder)','1'),
+('stroke','SNOMED','141151000119101','Nontraumatic subdural hematoma with brain compression (disorder)','1'),
+('stroke','SNOMED','141281000119101','History of ischemic stroke without residual deficits (situation)','2'),
+('stroke','SNOMED','141811000119106','History of hemorrhagic cerebrovascular accident with residual deficit (situation)','2'),
+('stroke','SNOMED','141821000119104','History of ischemic cerebrovascular accident with residual deficit (situation)','2'),
+('stroke','SNOMED','141831000119101','History of embolic stroke with deficits (situation)','2'),
+('stroke','SNOMED','142031000119104','Visual field defect due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','142851000119103','Spontaneous cerebellar hemorrhage (disorder)','1'),
+('stroke','SNOMED','14309005','Anterior choroidal artery syndrome','1'),
+('stroke','SNOMED','143521000119103','Nontraumatic intraparenchymal cerebral hemorrhage (disorder)','1'),
+('stroke','SNOMED','148871000119109','Weakness as a late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','149821000119103','Cerebral infarction due to carotid artery occlusion (disorder)','1'),
+('stroke','SNOMED','152148641000119104','Cerebrovascular accident due to embolism of bilateral carotid arteries (disorder)','1'),
+('stroke','SNOMED','15978431000119106','Thrombosis of right vertebral artery','1'),
+('stroke','SNOMED','16000351000119109','Cerebrovascular accident due to occlusion of left posterior cerebral artery','1'),
+('stroke','SNOMED','16000391000119104','Cerebrovascular accident due to occlusion of right posterior cerebral artery','1'),
+('stroke','SNOMED','16000431000119109','Cerebrovascular accident due to occlusion of right middle cerebral artery','1'),
+('stroke','SNOMED','16000511000119103','Cerebrovascular accident due to occlusion of left middle cerebral artery','1'),
+('stroke','SNOMED','16002031000119102','Cerebrovascular accident due to thrombus of right middle cerebral artery','1'),
+('stroke','SNOMED','16002111000119106','Cerebrovascular accident due to thrombus of left middle cerebral artery','1'),
+('stroke','SNOMED','16023911000119108','Cerebrovascular accident due to occlusion of right carotid artery (disorder)','1'),
+('stroke','SNOMED','16023951000119109','Cerebrovascular accident due to occlusion of left anterior choroidal artery (disorder)','1'),
+('stroke','SNOMED','16023991000119104','Cerebrovascular accident due to occlusion of left pontine artery (disorder)','1'),
+('stroke','SNOMED','16024031000119100','Cerebrovascular accident due to occlusion of right pontine artery (disorder)','1'),
+('stroke','SNOMED','16024071000119102','Cerebrovascular accident due to occlusion of right anterior choroidal artery (disorder)','1'),
+('stroke','SNOMED','16024111000119109','Cerebrovascular accident due to occlusion of left carotid artery (disorder)','1'),
+('stroke','SNOMED','16024151000119105','Cerebrovascular accident due to occlusion of left cerebellar artery (disorder)','1'),
+('stroke','SNOMED','16024271000119107','Cerebrovascular accident due to occlusion of right cerebellar artery (disorder)','1'),
+('stroke','SNOMED','16026951000119102','Cerebrovascular accident due to stenosis of right carotid artery (disorder)','1'),
+('stroke','SNOMED','16026991000119107','Cerebrovascular accident due to stenosis of left carotid artery (disorder)','1'),
+('stroke','SNOMED','161511000','History of transient ischemic attack','2'),
+('stroke','SNOMED','161515009','History of subarachnoid hemorrhage ','2'),
+('stroke','SNOMED','16218291000119100','Acute cerebral ischemia','1'),
+('stroke','SNOMED','16260551000119106','Dysphasia due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16371781000119100','Cerebellar stroke (disorder)','1'),
+('stroke','SNOMED','16469821000119106','Fatigue due to and following cerebrovascular accident with intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','16469881000119105','Fatigue due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16469931000119100','Fatigue due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16469991000119101','Fatigue due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16470041000119105','Urinary incontinence due to and following cerebrovascular accident with intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','16470101000119107','Urinary incontinence due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16470211000119100','Urinary incontinence due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16644541000119106','Cerebrovascular accident due to occlusion of bilateral carotid arteries (disorder)','1'),
+('stroke','SNOMED','16644681000119102','Cerebrovascular accident due to occlusion of bilateral pontine arteries (disorder)','1'),
+('stroke','SNOMED','16661931000119102','Cerebrovascular accident due to stenosis of bilateral vertebral arteries (disorder)','1'),
+('stroke','SNOMED','16661971000119104','Cerebrovascular accident due to stenosis of bilateral carotid arteries (disorder)','1'),
+('stroke','SNOMED','16702441000119104','Psychomotor retardation due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16702561000119104','Psychomotor retardation due to and following cerebrovascular accident with intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','16702671000119109','Psychomotor retardation due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16703661000119105','Memory deficit due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16703711000119100','Memory deficit due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16703761000119102','Memory deficit due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16703821000119101','Memory deficit due to and following hemorrhagic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','16709811000119106','Spontaneous hemorrhage of subarachnoid space from anterior communicating artery (disorder)','1'),
+('stroke','SNOMED','168747591000119109','Cerebrovascular accident due to embolism of bilateral posterior cerebral arteries (disorder)','1'),
+('stroke','SNOMED','16891111000119104','Cryptogenic stroke (disorder)','1'),
+('stroke','SNOMED','16896851000119101','History of embolic cerebrovascular accident','2'),
+('stroke','SNOMED','16896891000119106','History of cerebrovascular accident due to ischemia','2'),
+('stroke','SNOMED','182960891000119101','Cerebrovascular accident due to occlusion of left anterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','186831000119104','Apraxia due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','188174841000119103','Cerebrovascular accident due to occlusion of bilateral middle cerebral arteries (disorder)','1'),
+('stroke','SNOMED','195155004','Subarachnoid hemorrhage from carotid siphon and bifurcation (disorder)','1'),
+('stroke','SNOMED','195160000','Intracranial subarachnoid hemorrhage from vertebral artery (disorder)','1'),
+('stroke','SNOMED','195165005','Basal ganglia hemorrhage','1'),
+('stroke','SNOMED','195167002','External capsule hemorrhage','1'),
+('stroke','SNOMED','195168007','Intracerebral hemorrhage with intraventricular hemorrhage (disorder)','1'),
+('stroke','SNOMED','195169004','Intracerebral hemorrhage, multiple localized','1'),
+('stroke','SNOMED','195176009','Non-traumatic intracranial subdural hemorrhage (disorder)','1'),
+('stroke','SNOMED','195185009','Cerebral infarct due to thrombosis of precerebral arteries','1'),
+('stroke','SNOMED','195186005','Cerebral infarction due to embolism of precerebral arteries','1'),
+('stroke','SNOMED','195189003','Cerebral infarction due to thrombosis of cerebral arteries','1'),
+('stroke','SNOMED','195190007','Cerebral infarction due to embolism of cerebral arteries','1'),
+('stroke','SNOMED','195200006','Carotid artery syndrome hemispheric (disorder)','2'),
+('stroke','SNOMED','195201005','Multiple and bilateral precerebral artery syndromes','2'),
+('stroke','SNOMED','195205001','Impending cerebral ischemia (disorder)','2'),
+('stroke','SNOMED','195206000','Intermittent cerebral ischaemia','2'),
+('stroke','SNOMED','195209007','Middle cerebral artery syndrome (disorder)','1'),
+('stroke','SNOMED','195210002','Anterior cerebral artery syndrome (disorder)','1'),
+('stroke','SNOMED','195211003','Posterior cerebral artery syndrome (disorder)','1'),
+('stroke','SNOMED','195212005','Brainstem stroke syndrome (disorder)','1'),
+('stroke','SNOMED','195213000','Cerebellar stroke syndrome','1'),
+('stroke','SNOMED','195216008','Left sided cerebral hemisphere cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','195217004','Right sided cerebral hemisphere cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','195230003','Cerebral infarction due to cerebral venous thrombosis, non-pyogenic','1'),
+('stroke','SNOMED','195772021000119105','Cerebrovascular accident due to thrombosis of left anterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','20059004','Occlusion of cerebral artery','1'),
+('stroke','SNOMED','20908003','Subcortical cerebral hemorrhage','1'),
+('stroke','SNOMED','212455011000119105','Subacute nontraumatic intracranial subdural hematoma (disorder)','1'),
+('stroke','SNOMED','21454007','Subarachnoid intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','230690007','Cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','230691006','Cerebrovascular accident due to occlusion of cerebral artery','1'),
+('stroke','SNOMED','230692004','Infarction - precerebral','1'),
+('stroke','SNOMED','230693009','Anterior cerebral circulation infarction','1'),
+('stroke','SNOMED','230694003','Total anterior cerebral circulation infarction','1'),
+('stroke','SNOMED','230695002','Partial anterior cerebral circulation infarction','1'),
+('stroke','SNOMED','230696001','Posterior cerebral circulation infarction','1'),
+('stroke','SNOMED','230698000','Lacunar infarction','1'),
+('stroke','SNOMED','230699008','Pure motor lacunar infarction','1'),
+('stroke','SNOMED','230700009','Pure sensory lacunar infarction','1'),
+('stroke','SNOMED','230701008','Pure sensorimotor lacunar infarction','1'),
+('stroke','SNOMED','230702001','Lacunar ataxic hemiparesis','1'),
+('stroke','SNOMED','230703006','Dysarthria-clumsy hand syndrome','1'),
+('stroke','SNOMED','230704000','Multi-infarct state','1'),
+('stroke','SNOMED','230706003','Hemorrhagic cerebral infarction (disorder)','1'),
+('stroke','SNOMED','230707007','Anterior cerebral circulation hemorrhagic infarction (disorder)','1'),
+('stroke','SNOMED','230708002','Posterior cerebral circulation hemorrhagic infarction (disorder)','1'),
+('stroke','SNOMED','230709005','Massive supratentorial cerebral hemorrhage','1'),
+('stroke','SNOMED','230710000','Lobar cerebral hemorrhage','1'),
+('stroke','SNOMED','230711001','Thalamic hemorrhage','1'),
+('stroke','SNOMED','230712008','Lacunar hemorrhage','1'),
+('stroke','SNOMED','230713003','Stroke of uncertain pathology (disorder)','1'),
+('stroke','SNOMED','230714009','Anterior circulation stroke of uncertain pathology (disorder)','1'),
+('stroke','SNOMED','230715005','Posterior circulation stroke of uncertain pathology (disorder)','1'),
+('stroke','SNOMED','230716006','Carotid territory transient ischemic attack (disorder)','2'),
+('stroke','SNOMED','230717002','Vertebrobasilar territory transient ischemic attack (disorder)','2'),
+('stroke','SNOMED','230718007','Subarachnoid hemorrhage due to ruptured arteriovenous malformation (disorder)','1'),
+('stroke','SNOMED','230719004','Intracranial subarachnoid hemorrhage due to ruptured aneurysm (disorder)','1'),
+('stroke','SNOMED','231231000000107','Delivery of rehabilitation for stroke (regime/therapy)','2'),
+('stroke','SNOMED','23276006','Ventricular hemorrhage (disorder)','1'),
+('stroke','SNOMED','237701005','Pituitary apoplexy (disorder)','1'),
+('stroke','SNOMED','237702003','Pituitary hemorrhage (disorder)','1'),
+('stroke','SNOMED','239965291000119107','Cerebrovascular accident due to occlusion of basilar artery (disorder)','1'),
+('stroke','SNOMED','24654003','Weber-Gubler syndrome','1'),
+('stroke','SNOMED','25133001','Completed stroke','1'),
+('stroke','SNOMED','251770561000119107','Cerebrovascular accident due to embolism of left anterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','266257000','Transient ischemic attack (disorder)','2'),
+('stroke','SNOMED','270907008','Spontaneous intracranial subarachnoid hemorrhage (disorder)','1'),
+('stroke','SNOMED','274100004','Cerebral hemorrhage','1'),
+('stroke','SNOMED','275434003','Stroke in the puerperium (disorder)','1'),
+('stroke','SNOMED','275526006','History of cerebrovascular accident (situation)','2'),
+('stroke','SNOMED','276219001','Occipital cerebral infarction','1'),
+('stroke','SNOMED','276220007','Foville syndrome','1'),
+('stroke','SNOMED','276221006','Millard-Gubler syndrome','1'),
+('stroke','SNOMED','276222004','Top of basilar syndrome','1'),
+('stroke','SNOMED','276277008','Subarachnoid hemorrhage from multiple aneurysms (disorder)','1'),
+('stroke','SNOMED','276278003','Subarachnoid hemorrhage from anterior cerebral artery aneurysm (disorder)','1'),
+('stroke','SNOMED','276280009','Subarachnoid hemorrhage from middle cerebral artery aneurysm (disorder)','1'),
+('stroke','SNOMED','276281008','Subarachnoid hemorrhage from posterior cerebral artery aneurysm (disorder)','1'),
+('stroke','SNOMED','276282001','Subarachnoid hemorrhage from anterior communicating artery aneurysm (disorder)','1'),
+('stroke','SNOMED','276283006','Subarachnoid hemorrhage from posterior communicating artery aneurysm (disorder)','1'),
+('stroke','SNOMED','276284000','Subarachnoid hemorrhage from basilar artery aneurysm (disorder)','1'),
+('stroke','SNOMED','276285004','Subarachnoid hemorrhage from posterior inferior cerebellar artery aneurysm (disorder)','1'),
+('stroke','SNOMED','276286003','Subarachnoid hemorrhage from carotid artery aneurysm (disorder)','1'),
+('stroke','SNOMED','276722003','Intracerebellar and posterior fossa hemorrhage','1'),
+('stroke','SNOMED','277286006','Chronic central post-stroke pain (disorder)','1'),
+('stroke','SNOMED','277303004','Angiogram-negative intracranial subarachnoid hemorrhage (disorder)','1'),
+('stroke','SNOMED','281240008','Extension of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','281864001','Non-traumatic intracranial subdural hematoma (disorder)','1'),
+('stroke','SNOMED','281865000','Non-traumatic extradural intracranial hematoma (disorder)','1'),
+('stroke','SNOMED','28318001','Basilar hemorrhage (disorder)','1'),
+('stroke','SNOMED','290581000119101','Ataxia due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','290631000119103','Dysarthria due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','290791000119105','Fluency disorder due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','290931000119108','Monoplegia of lower limb due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','291091000119102','Monoplegia of left nondominant upper limb due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','291111000119105','Monoplegia of right nondominant upper limb due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','291121000119103','Monoplegia of upper limb due to and following cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','291351000119109','Spontaneous hemorrhage of subarachnoid space from basilar artery (disorder)','1'),
+('stroke','SNOMED','291371000119100','Spontaneous hemorrhage of subarachnoid space from intracranial artery (disorder)','1'),
+('stroke','SNOMED','291411000119104','Spontaneous hemorrhage of subarachnoid space from left posterior communicating artery (disorder)','1'),
+('stroke','SNOMED','291421000119106','Non-traumatic hemorrhage of subarachnoid space from left vertebral artery (disorder)','1'),
+('stroke','SNOMED','291481000119105','Spontaneous hemorrhage of subarachnoid space from right posterior communicating artery (disorder)','1'),
+('stroke','SNOMED','291491000119108','Non-traumatic hemorrhage of subarachnoid space from right vertebral artery (disorder)','1'),
+('stroke','SNOMED','291511000119103','Spontaneous hemorrhage of deep cerebral hemisphere','1'),
+('stroke','SNOMED','291521000119105','Spontaneous hemorrhage of cortical intracerebral hemisphere','1'),
+('stroke','SNOMED','291531000119108','Spontaneous hemorrhage of cerebral hemisphere','1'),
+('stroke','SNOMED','291541000119104','Spontaneous hemorrhage of brain stem','1'),
+('stroke','SNOMED','291571000119106','Spontaneous cerebral hemorrhage (disorder)','1'),
+('stroke','SNOMED','291581000119109','Acute nontraumatic subdural hemorrhage (disorder)','1'),
+('stroke','SNOMED','291591000119107','Subacute non-traumatic intracranial subdural hemorrhage (disorder)','1'),
+('stroke','SNOMED','291665000','Postpartum intrapituitary hemorrhage (disorder)','1'),
+('stroke','SNOMED','292661000119105','Cerebrovascular accident due to stenosis of right vertebral artery (disorder)','1'),
+('stroke','SNOMED','292671000119104','Cerebrovascular accident due to stenosis of left vertebral artery (disorder)','1'),
+('stroke','SNOMED','292681000119101','Cerebrovascular accident due to occlusion of right vertebral artery (disorder)','1'),
+('stroke','SNOMED','292691000119103','Cerebrovascular accident due to occlusion of left vertebral artery (disorder)','1'),
+('stroke','SNOMED','292851000119109','Lacunar ataxic hemiparesis of right dominant side','1'),
+('stroke','SNOMED','292861000119106','Lacunar ataxic hemiparesis of left dominant side','1'),
+('stroke','SNOMED','293811000119100','Cerebral infarction due to vertebral artery stenosis (disorder)','1'),
+('stroke','SNOMED','293831000119105','Cerebral infarction due to stenosis of precerebral artery (disorder)','1'),
+('stroke','SNOMED','297138001','Embolus of circle of Willis (disorder)','1'),
+('stroke','SNOMED','297778421000119102','Cerebrovascular accident due to thrombosis of bilateral posterior cerebral arteries (disorder)','1'),
+('stroke','SNOMED','301764006','Hematoma of brain (disorder)','1'),
+('stroke','SNOMED','301765007','Cerebellar hematoma (disorder)','1'),
+('stroke','SNOMED','302902003','Infarction of optic chiasm (disorder)','1'),
+('stroke','SNOMED','302904002','Infarction of visual cortex (disorder)','1'),
+('stroke','SNOMED','304831001','Chronic intracranial subdural hematoma (disorder)','2'),
+('stroke','SNOMED','307363008','Multiple lacunar infarcts','1'),
+('stroke','SNOMED','307766002','Left sided cerebral infarction','1'),
+('stroke','SNOMED','307767006','Right sided cerebral infarction','1'),
+('stroke','SNOMED','308067002','History of stroke in last year (situation)','2'),
+('stroke','SNOMED','308128006','Right sided intracerebral hemorrhage, unspecified','1'),
+('stroke','SNOMED','32728005','Hemorrhage due to ruptured congenital cerebral aneurysm (disorder)','1'),
+('stroke','SNOMED','329361000119107','Cerebrovascular accident due to occlusion of right middle cerebral artery by embolus','1'),
+('stroke','SNOMED','329371000119101','Cerebrovascular accident due to occlusion of left middle cerebral artery by embolus','1'),
+('stroke','SNOMED','329421000119107','Cerebrovascular accident due to occlusion of right posterior cerebral artery by embolus','1'),
+('stroke','SNOMED','329431000119105','Cerebrovascular accident due to occlusion of left posterior cerebral artery by embolus','1'),
+('stroke','SNOMED','329451000119104','Cerebrovascular accident due to occlusion of right cerebellar artery by embolus (disorder)','1'),
+('stroke','SNOMED','329461000119102','Cerebrovascular accident due to occlusion of left cerebellar artery by embolus','1'),
+('stroke','SNOMED','329481000119106','Occlusion of right middle cerebral artery','1'),
+('stroke','SNOMED','329491000119109','Occlusion of left middle cerebral artery','1'),
+('stroke','SNOMED','329561000119101','Occlusion of right posterior cerebral artery','1'),
+('stroke','SNOMED','329571000119107','Occlusion of left posterior cerebral artery','1'),
+('stroke','SNOMED','329641000119104','Cerebrovascular accident due to thrombus of basilar artery','1'),
+('stroke','SNOMED','329651000119102','Cerebrovascular accident due to thrombus of right carotid artery','1'),
+('stroke','SNOMED','330411000119109','Lacunar ataxic hemiparesis of left nondominant side','1'),
+('stroke','SNOMED','330421000119102','Lacunar ataxic hemiparesis of right nondominant side','1'),
+('stroke','SNOMED','330791000119108','Cerebrovascular accident due to thrombus of left carotid artery','1'),
+('stroke','SNOMED','33301000119105','Sequela of cardioembolic stroke (disorder)','1'),
+('stroke','SNOMED','33331000119103','Sequela of lacunar stroke (disorder)','1'),
+('stroke','SNOMED','34181000119102','Cerebral infarction due to occlusion of basilar artery (disorder)','1'),
+('stroke','SNOMED','34191000119104','Cerebral infarction due to vertebral artery occlusion (disorder)','1'),
+('stroke','SNOMED','346674811000119104','Cerebrovascular accident due to occlusion of bilateral cerebellar arteries (disorder)','1'),
+('stroke','SNOMED','35486000','Subdural intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','361000119103','Paralytic syndrome on one side of the body as late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','371040005','Thrombotic stroke','1'),
+('stroke','SNOMED','371041009','Embolic stroke','1'),
+('stroke','SNOMED','373606000','Occlusive stroke','1'),
+('stroke','SNOMED','384430101000119103','Cerebrovascular accident due to embolism of right carotid artery (disorder)','1'),
+('stroke','SNOMED','384993003','Periventricular hemorrhagic venous infarct (disorder)','1'),
+('stroke','SNOMED','38595071000119104','Cerebrovascular accident due to thrombosis of right posterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','397809001','Nontraumatic extradural intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','40161000119102','Weakness of face muscles as sequela of stroke (disorder)','1'),
+('stroke','SNOMED','413102000','Infarction of basal ganglia','1'),
+('stroke','SNOMED','413758000','Cardioembolic stroke','1'),
+('stroke','SNOMED','417506008','Hemorrhagic stroke monitoring (regime/therapy)','2'),
+('stroke','SNOMED','422504002','Ischemic stroke (disorder)','1'),
+('stroke','SNOMED','42429001','Cerebromeningeal hemorrhage (disorder)','1'),
+('stroke','SNOMED','425642008','Monoplegia of dominant lower limb as a late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','425882004','Paralytic syndrome as late effect of stroke (disorder)','1'),
+('stroke','SNOMED','425957003','Non-traumatic intracerebral ventricular hemorrhage (disorder)','1'),
+('stroke','SNOMED','426033005','Dysphagia as a late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','426107000','Acute lacunar infarction','1'),
+('stroke','SNOMED','426788002','Vertigo as late effect of stroke (disorder)','1'),
+('stroke','SNOMED','426814001','Transient cerebral ischemia due to atrial fibrillation (disorder)','2'),
+('stroke','SNOMED','426983002','Infarction of medulla oblongata','1'),
+('stroke','SNOMED','427065003','Monoplegia of dominant upper limb as a late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','427296003','Thalamic infarction (disorder)','1'),
+('stroke','SNOMED','427432001','Paralytic syndrome as late effect of thalamic stroke (disorder)','1'),
+('stroke','SNOMED','428268007','Epidural intracranial hematoma (disorder)','1'),
+('stroke','SNOMED','428275008','History of subdural hematoma','2'),
+('stroke','SNOMED','428561000','Occipital subdural hematoma (disorder)','1'),
+('stroke','SNOMED','429235008','History of cardioembolic stroke (situation)','2'),
+('stroke','SNOMED','429743002','Occipital extradural hematoma (disorder)','1'),
+('stroke','SNOMED','429993008','History of cerebrovascular accident without residual deficits (situation)','2'),
+('stroke','SNOMED','430947007','Paralytic syndrome of nondominant side as late effect of stroke (disorder)','1'),
+('stroke','SNOMED','430959006','Paralytic syndrome of dominant side as late effect of stroke (disorder)','1'),
+('stroke','SNOMED','431266005','Intraparenchymal hematoma of brain (disorder)','1'),
+('stroke','SNOMED','432504007','Cerebral infarction','1'),
+('stroke','SNOMED','433183000','Neurogenic bladder as late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','440140008','History of cerebrovascular accident with residual deficit (situation)','2'),
+('stroke','SNOMED','440665006','Compensatory behavior related to unilateral stroke deficit (observable entity)','1'),
+('stroke','SNOMED','441526008','Infarct of cerebrum due to iatrogenic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','441894009','Monoplegia of nondominant lower limb as a late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','441960006','Speech and language deficit as late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','441991000','Hemiparesis as late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','442181008','Monoplegia of nondominant upper limb as a late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','442212003','Residual cognitive deficit as late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','442617003','Aphasia as late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','442733008','Hemiplegia as late effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','444172003','Recurrent transient cerebral ischemic attack (disorder)','2'),
+('stroke','SNOMED','444657001','Superior cerebellar artery syndrome','1'),
+('stroke','SNOMED','449020009','Intraparenchymal hemorrhage of brain (disorder)','1'),
+('stroke','SNOMED','450376009','Hemorrhage of intracranial meningeal space (disorder)','1'),
+('stroke','SNOMED','450425005','Intracranial hematoma (disorder)','1'),
+('stroke','SNOMED','451035002','Subpial intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','451037005','Hemorrhage in globus pallidus (disorder)','1'),
+('stroke','SNOMED','451038000','Hemorrhage in caudate nucleus (disorder)','1'),
+('stroke','SNOMED','451039008','Hemorrhage in putamen (disorder)','1'),
+('stroke','SNOMED','45639009','Hereditary cerebral amyloid angiopathy, Icelandic type (disorder)','2'),
+('stroke','SNOMED','48601000119107','Paralytic syndrome on one side of the body as effect of cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','488408691000119104','Cerebrovascular accident due to thrombosis of bilateral cerebellar arteries (disorder)','1'),
+('stroke','SNOMED','49422009','Cortical hemorrhage','1'),
+('stroke','SNOMED','496369931000119104','Cerebrovascular accident due to thrombosis of right cerebellar artery (disorder)','1'),
+('stroke','SNOMED','511452481000119102','Cerebrovascular accident due to thrombosis of right vertebral artery (disorder)','1'),
+('stroke','SNOMED','517253051000119105','Cerebrovascular accident due to embolism of left vertebral artery (disorder)','1'),
+('stroke','SNOMED','52201006','Internal capsule hemorrhage','1'),
+('stroke','SNOMED','5571000124103','Cerebrovascular accident with intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','56267009','Multi-infarct dementia','1'),
+('stroke','SNOMED','563789641000119101','Cerebrovascular accident due to thrombosis of bilateral carotid arteries (disorder)','1'),
+('stroke','SNOMED','578968971000119100','Cerebrovascular accident due to thrombosis of bilateral vertebral arteries (disorder)','1'),
+('stroke','SNOMED','57981008','Progressing stroke (disorder)','2'),
+('stroke','SNOMED','58173271000119101','Cerebrovascular accident due to embolism of bilateral cerebellar arteries (disorder)','1'),
+('stroke','SNOMED','595899961000119100','Cerebrovascular accident of basal ganglia (disorder)','1'),
+('stroke','SNOMED','609382000','Chronic non-traumatic intracranial subdural hemorrhage (disorder)','2'),
+('stroke','SNOMED','64009001','Basilar artery syndrome (disorder)','1'),
+('stroke','SNOMED','652287331000119104','Cerebrovascular accident of brainstem (disorder)','1'),
+('stroke','SNOMED','655081461000119101','Cerebrovascular accident due to occlusion of right anterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','672441000119103','Hemiplegia of nondominant side due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','672461000119104','Hemiplegia of dominant side due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','672501000119104','Dysarthria due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','672511000119101','Dysarthria due to and following hemorrhagic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','672521000119108','Dysphasia due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','672531000119106','Dysphasia due to and following hemorrhagic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','672541000119102','Aphasia due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','672561000119103','Cognitive deficit due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','672571000119109','Cognitive deficit due to and following hemorrhagic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','674091000119108','Vertigo due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','674111000119100','Ataxia due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','674121000119107','Ataxia due to and following hemorrhagic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','674161000119102','Monoplegia of upper limb due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','674361000119104','Apraxia due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','674371000119105','Weakness of facial muscle due to and following hemorrhagic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','674381000119108','Weakness of facial muscle due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','674391000119106','Speech and language deficit due to and following hemorrhagic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','674401000119108','Speech and language deficit due to and following ischemic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','690051000119100','History of cerebellar stroke (situation)','2'),
+('stroke','SNOMED','690171000119105','Weakness of facial muscle due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','690201000119109','Ataxia due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','690271000119104','Hemiplegia of nondominant side due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','690301000119102','Fluency disorder due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','690311000119104','Dysarthria due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','690321000119106','Aphasia due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','690331000119109','Speech and language deficit due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','690341000119100','Cognitive deficit due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','690351000119103','Dysphasia due to and following embolic cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','703156006','Deep hemispheric cerebral hemorrhage (disorder)','1'),
+('stroke','SNOMED','703174002','Subarachnoid hemorrhage from vertebral artery aneurysm (disorder)','1'),
+('stroke','SNOMED','703215002','Non-aneurysmal subarachnoid intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','703216001','Perimesencephalic subarachnoid hemorrhage (disorder)','1'),
+('stroke','SNOMED','703217005','Convexal subarachnoid hemorrhage (disorder)','1'),
+('stroke','SNOMED','704079000','Non-aneurysmal perimesencephalic subarachnoid hemorrhage (disorder)','1'),
+('stroke','SNOMED','705128004','Cerebral infarction due to embolism of middle cerebral artery (disorder)','1'),
+('stroke','SNOMED','705130002','Cerebral infarction due to thrombosis of middle cerebral artery (disorder)','1'),
+('stroke','SNOMED','710575003','Transient ischemic attack due to embolism (disorder)','2'),
+('stroke','SNOMED','713081000','Dissection of cerebral artery (disorder)','1'),
+('stroke','SNOMED','713410003','Pain following cerebrovascular accident (finding)','1'),
+('stroke','SNOMED','71444005','Cerebral arterial thrombosis','1'),
+('stroke','SNOMED','716051003','Cerebrovascular accident during surgery (disorder)','1'),
+('stroke','SNOMED','720261501000119107','Cerebrovascular accident due to occlusion of bilateral anterior cerebral arteries (disorder)','1'),
+('stroke','SNOMED','723082006','Silent cerebral infarct','1'),
+('stroke','SNOMED','723083001','Late effects of cerebral ischemic stroke (disorder)','1'),
+('stroke','SNOMED','723857007','Silent micro-hemorrhage of brain (disorder)','1'),
+('stroke','SNOMED','724424009','Cerebral ischemic stroke due to small artery occlusion','1'),
+('stroke','SNOMED','724425005','Cerebral ischemic stroke due to intracranial large artery atherosclerosis (disorder)','1'),
+('stroke','SNOMED','724426006','Cerebral ischemic stroke due to extracranial large artery atherosclerosis (disorder)','1'),
+('stroke','SNOMED','724429004','Stroke co-occurrent with migraine','1'),
+('stroke','SNOMED','724787004','Epilepsy due to cerebrovascular accident (disorder)','1'),
+('stroke','SNOMED','724993002','Cerebral ischemic stroke due to occlusion of extracranial large artery (disorder)','1'),
+('stroke','SNOMED','724994008','Cerebral ischemic stroke due to stenosis of extracranial large artery (disorder)','1'),
+('stroke','SNOMED','725132001','Ischemic stroke without residual deficits (disorder)','1'),
+('stroke','SNOMED','72986009','Acute hemorrhagic leukoencephalitis (disorder)','1'),
+('stroke','SNOMED','73020009','Cerebral hemisphere hemorrhage (disorder)','1'),
+('stroke','SNOMED','732330391000119107','Cerebrovascular accident due to embolism of bilateral vertebral arteries (disorder)','1'),
+('stroke','SNOMED','732923001','Hemorrhage of medulla oblongata','1'),
+('stroke','SNOMED','733199002','Multifocal cerebral infarction due to and following procedure on cardiovascular system (disorder)','1'),
+('stroke','SNOMED','734383005','Thrombosis of left middle cerebral artery','1'),
+('stroke','SNOMED','734384004','Thrombosis of right middle cerebral artery','1'),
+('stroke','SNOMED','734961002','Embolus of left posterior cerebral artery','1'),
+('stroke','SNOMED','734963004','Embolus of right posterior cerebral artery','1'),
+('stroke','SNOMED','734964005','Embolus of left middle cerebral artery','1'),
+('stroke','SNOMED','734965006','Embolus of right middle cerebral artery','1'),
+('stroke','SNOMED','737160009','Dissection of basilar artery (disorder)','1'),
+('stroke','SNOMED','738779002','Spontaneous intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','75038005','Cerebellar hemorrhage','1'),
+('stroke','SNOMED','751371000000107','Personal history of transient ischaemic attack (situation)','2'),
+('stroke','SNOMED','75543006','Cerebral embolism','1'),
+('stroke','SNOMED','759291281000119108','Acute nontraumatic intracranial subdural hematoma (disorder)','1'),
+('stroke','SNOMED','759950981000119101','Cerebrovascular accident due to thrombosis of left vertebral artery (disorder)','1'),
+('stroke','SNOMED','762629007','Occlusion of right middle cerebral artery by embolus','1'),
+('stroke','SNOMED','762630002','Occlusion of left middle cerebral artery by embolus','1'),
+('stroke','SNOMED','762651004','Occlusion of right posterior cerebral artery by embolus','1'),
+('stroke','SNOMED','762652006','Occlusion of left posterior cerebral artery by embolus','1'),
+('stroke','SNOMED','769023031000119104','Cerebrovascular accident of thalamus (disorder)','1'),
+('stroke','SNOMED','7713009','Intrapontine hemorrhage','1'),
+('stroke','SNOMED','771476007','Autosomal recessive leukoencephalopathy, ischemic stroke, retinitis pigmentosa syndrome (disorder)','2'),
+('stroke','SNOMED','788455001','Occlusion of bilateral pontine arteries','1'),
+('stroke','SNOMED','788880006','Cerebral ischemic stroke due to dissection of artery','1'),
+('stroke','SNOMED','788881005','Cerebral ischemic stroke due to aortic arch embolism','1'),
+('stroke','SNOMED','788882003','Cerebral ischemic stroke due to global hypoperfusion with watershed infarct','1'),
+('stroke','SNOMED','788883008','Cerebral ischemic stroke due to hypercoagulable state','1'),
+('stroke','SNOMED','788884002','Cerebral ischemic stroke due to subarachnoid hemorrhage','1'),
+('stroke','SNOMED','80051000119107','Stroke care management (procedure)','2'),
+('stroke','SNOMED','806161651000119106','Cerebrovascular accident due to embolism of right vertebral artery (disorder)','1'),
+('stroke','SNOMED','816241000000109','Management of stroke rehabilitation (procedure)','2'),
+('stroke','SNOMED','817701000000103','Acute stroke care (regime/therapy)','1'),
+('stroke','SNOMED','817711000000101','Management of acute stroke (procedure)','1'),
+('stroke','SNOMED','823971000000109','Acute stroke care management (procedure)','1'),
+('stroke','SNOMED','828066161000119106','Cerebrovascular accident due to thrombosis of right anterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','82999001','Epidural intracranial hemorrhage (disorder)','1'),
+('stroke','SNOMED','840422007','Dissection of anterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','840434004','Dissection of posterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','840436002','Dissection of middle cerebral artery (disorder)','1'),
+('stroke','SNOMED','840437006','Dissection of multiple cerebral arteries (disorder)','1'),
+('stroke','SNOMED','840439009','Dissection of intracranial carotid artery (disorder)','1'),
+('stroke','SNOMED','840441005','Dissection of intracranial artery (disorder)','1'),
+('stroke','SNOMED','842421000000106','Acute stroke management plan agreed (finding)','1'),
+('stroke','SNOMED','849488701000119104','Cerebrovascular accident due to embolism of right anterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','849579281000119106','Cerebrovascular accident due to occlusion of right posterior communicating artery (disorder)','1'),
+('stroke','SNOMED','851365731000119106','Cerebrovascular accident due to thrombosis of left posterior cerebral artery (disorder)','1'),
+('stroke','SNOMED','859422751000119101','Cerebrovascular accident due to embolism of left carotid artery (disorder)','1'),
+('stroke','SNOMED','86553761000119103','Cerebrovascular accident due to occlusion of bilateral posterior cerebral arteries (disorder)','1'),
+('stroke','SNOMED','870544005','Occlusion of distal basilar artery','1'),
+('stroke','SNOMED','870579007','Occlusion of branch of basilar artery','1'),
+('stroke','SNOMED','87555007',"Claude's syndrome",'1'),
+('stroke','SNOMED','88032003','Amaurosis fugax (disorder)','2'),
+('stroke','SNOMED','881694631000119107','Cerebrovascular accident of medulla oblongata (disorder)','1'),
+('stroke','SNOMED','898941951000119108','Cerebrovascular accident due to occlusion of bilateral vertebral arteries (disorder)','1'),
+('stroke','SNOMED','90099008','Subcortical leukoencephalopathy','1'),
+('stroke','SNOMED','915141931000119109','Cerebrovascular accident due to embolism of basilar artery (disorder)','1'),
+('stroke','SNOMED','91601000119109','Sequela of thrombotic stroke (disorder)','1'),
+('stroke','SNOMED','92341000119107','Weakness of extremities as sequela of stroke (disorder)','1'),
+('stroke','SNOMED','939885431000119109','Cerebrovascular accident due to embolism of bilateral middle cerebral arteries (disorder)','1'),
+('stroke','SNOMED','95453001','Subdural intracranial hematoma (disorder)','1'),
+('stroke','SNOMED','95454007','Brain stem hemorrhage','1'),
+('stroke','SNOMED','95457000','Brain stem infarction','1'),
+('stroke','SNOMED','95460007','Cerebellar infarction','1'),
+('stroke','SNOMED','957319791000119104','Cerebrovascular accident due to thrombosis of left cerebellar artery (disorder)','1'),
+('stroke','SNOMED','95830009','Pituitary infarction (disorder)','1'),
+('stroke','SNOMED','97531000119106','History of parietal cerebrovascular accident (situation)','2'),
+('stroke','SNOMED','9901000119100','Occlusion of cerebral artery with stroke (disorder)','1'),
+('stroke','SNOMED','99051000119101','History of lacunar cerebrovascular accident (situation)','2'),
+('stroke','SNOMED','991898981000119108','Chronic nontraumatic intracranial subdural hematoma (disorder)','2'),
+('stroke','SNOMED','99451000119105','Cerebral infarction due to stenosis of carotid artery (disorder)','1'),
+
+],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_stroke, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md ## 1.6. Peripheral vascular disease (PVD)
+
+# COMMAND ----------
+
+codelist_PVD = spark.createDataFrame(
+  [
+
+('PVD','ICD10','I70','Atherosclerosis','2'),
+('PVD','ICD10','I71','Aortic aneurysm and dissection','1'),
+('PVD','ICD10','I72','Other aneurysm and dissection','1'),
+('PVD','ICD10','I731','Thromboangiitis obliterans [Buerger]','1'),
+('PVD','ICD10','I738','Other specified peripheral vascular diseases','1'),
+('PVD','ICD10','I739','Peripheral vascular disease, unspecified','1'),
+('PVD','ICD10','I74','Arterial embolism and thrombosis','1'),
+('PVD','ICD10','I770','Arteriovenous fistula, acquired','1'),
+('PVD','ICD10','I771','Stricture of artery','2'),
+('PVD','ICD10','I772','Rupture of artery','1'),
+('PVD','ICD10','I773','Arterial fibromuscular dysplasia','2'),
+('PVD','ICD10','I774','Coeliac artery compression syndrome','2'),
+('PVD','ICD10','I775','Necrosis of artery','1'),
+('PVD','ICD10','I776','Arteritis, unspecified','1'),
+('PVD','SNOMED','301755001','Ischemic foot (disorder)','1'),
+('PVD','SNOMED','233962007','Critical lower limb ischemia (disorder)','1'),
+('PVD','SNOMED','307408003','Ischemic toe (disorder)','1'),
+('PVD','SNOMED','840580004','Peripheral arterial disease (disorder)','1'),
+('PVD','SNOMED','713412006','Ischemic foot with rest pain (disorder)','1'),
+('PVD','SNOMED','312822006','Critical ischemia of foot (disorder)','1'),
+('PVD','SNOMED','300917007','Ischemia of feet (disorder)','1'),
+('PVD','SNOMED','713825007','Renal artery stenosis of transplanted kidney (disorder)','1'),
+('PVD','SNOMED','399957001','Peripheral arterial occlusive disease (disorder)','1'),
+('PVD','SNOMED','233958001','Peripheral ischemia (disorder)','1'),
+('PVD','SNOMED','233961000','Lower limb ischemia (disorder)','1'),
+('PVD','SNOMED','400047006','Peripheral vascular disease (disorder)','1'),
+('PVD','SNOMED','723870003','Acute occlusion of artery of lower limb co-occurrent and due to thromboembolus (disorder)','1'),
+('PVD','SNOMED','307406004','Trash foot (disorder)','1'),
+('PVD','SNOMED','31211000119101','Peripheral angiopathy due to type 1 diabetes mellitus (disorder)','1'),
+
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_PVD, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md ## 1.7. Deep vein thrombosis (DVT)
+
+# COMMAND ----------
+
+codelist_DVT = spark.createDataFrame(
+  [
+    
+('DVT','ICD10','I80','Phlebitis and thrombophlebitis','1'),
+('DVT','ICD10','I81','Portal vein thrombosis','1'),
+('DVT','ICD10','I820','Budd-Chiari syndrome','1'),
+('DVT','ICD10','I822','Embolism and thrombosis of vena cava','1'),
+('DVT','ICD10','I823','Embolism and thrombosis of renal vein','1'),
+('DVT','ICD10','I828','Embolism and thrombosis of other specified veins','1'),
+('DVT','ICD10','I829','Embolism and thrombosis of unspecified vein','1'),
+
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+
+# Check
+count_var(codelist_DVT, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md # 2. Codelists for fatal CVD Outcomes
+
+# COMMAND ----------
+
+# MAGIC %md ## 2.1. Hypertensive disease
+
+# COMMAND ----------
+
+# Hypertensive disease (Death - ICD10 only)
+codelist_Hypertensive = spark.createDataFrame(
+  [
+    ("Hypertensive disease", "ICD10", "I10", "Essential (primary) hypertension", "1"),
+    ("Hypertensive disease", "ICD10", "I11", "Hypertensive heart disease", "1"),
+    ("Hypertensive disease", "ICD10", "I12", "Hypertensive renal disease", "1"),
+    ("Hypertensive disease", "ICD10", "I13", "Hypertensive heart and renal disease", "1"),
+    ("Hypertensive disease", "ICD10", "I15", "Secondary hypertension", "1")
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_Hypertensive, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md ## 2.2. Coronary Heart disease (CHD) - already defined for non-fatal outcomes
+
+# COMMAND ----------
+
+# MAGIC %md ## 2.3. Other forms of heart disease
+
+# COMMAND ----------
+
+# Other forms of heart disease (Death - ICD10 only)
+codelist_OtherHD = spark.createDataFrame(
+  [
+    ("OtherHD", "ICD10", "I30", "Acute pericarditis", "1"),
+    ("OtherHD", "ICD10", "I31", "Other diseases of pericardium", "1"),
+    ("OtherHD", "ICD10", "I32", "Pericarditis in diseases classified elsewhere", "1"),
+    ("OtherHD", "ICD10", "I33", "Acute and subacute endocarditis", "1"),
+    ("OtherHD", "ICD10", "I34", "Nonrheumatic mitral valve disorders", "1"),
+    ("OtherHD", "ICD10", "I35", "Nonrheumatic aortic valve disorders", "1"),
+    ("OtherHD", "ICD10", "I36", "Nonrheumatic tricuspid valve disorders", "1"),
+    ("OtherHD", "ICD10", "I37", "Pulmonary valve disorders", "1"),
+    ("OtherHD", "ICD10", "I38", "Endocarditis, valve unspecified", "1"),
+    ("OtherHD", "ICD10", "I39", "Endocarditis and heart valve disorders in diseases classified elsewhere", "1"),
+    ("OtherHD", "ICD10", "I40", "Acute myocarditis", "1"),
+    ("OtherHD", "ICD10", "I41", "Myocarditis in diseases classified elsewhere", "1"),
+    ("OtherHD", "ICD10", "I42", "Cardiomyopathy", "1"),
+    ("OtherHD", "ICD10", "I43", "Cardiomyopathy in diseases classified elsewhere", "1"),
+    ("OtherHD", "ICD10", "I44", "Atrioventricular and left bundle-branch block", "1"),
+    ("OtherHD", "ICD10", "I45", "Other conduction disorders", "1"),
+    ("OtherHD", "ICD10", "I46", "Cardiac arrest", "1"),
+    ("OtherHD", "ICD10", "I47", "Paroxysmal tachycardia", "1"),
+    ("OtherHD", "ICD10", "I48", "Atrial fibrillation and flutter", "1"),
+    ("OtherHD", "ICD10", "I49", "Other cardiac arrhythmias", "1"),
+    ("OtherHD", "ICD10", "I50", "Heart failure", "1"),
+    ("OtherHD", "ICD10", "I51", "Complications and ill-defined descriptions of heart disease", "1"),
+    ("OtherHD", "ICD10", "I52", "Other heart disorders in diseases classified elsewhere", "1")
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_OtherHD, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md ## 2.4. Cerebrovascular diseases (stroke) - already defined for non-fatal outcomes
+
+# COMMAND ----------
+
+# MAGIC %md ## 2.5. Diseases of arteries, arterioles and capillaries
+
+# COMMAND ----------
+
+# Diseases of arteries, arterioles and capillaries (Death - ICD10 only)
+codelist_Arter = spark.createDataFrame(
+  [
+    ("Arter", "ICD10", "I70", "Atherosclerosis", "1"),
+    ("Arter", "ICD10", "I71", "Aortic aneurysm and dissection", "1"),
+    ("Arter", "ICD10", "I72", "Other aneurysm and dissection", "1"),
+    ("Arter", "ICD10", "I73", "Other peripheral vascular diseases", "1"),
+    ("Arter", "ICD10", "I74", "Arterial embolism and thrombosis", "1"),
+    ("Arter", "ICD10", "I77", "Other disorders of arteries and arterioles", "1"),
+    ("Arter", "ICD10", "I78", "Diseases of capillaries", "1"),
+    ("Arter", "ICD10", "I79", "Disorders of arteries, arterioles and capillaries in diseases classified elsewhere", "1")
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_Arter, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md ## 2.6. Deep vein thrombosis (DVT) - already defined for non-fatal outcomes
+
+# COMMAND ----------
+
+# MAGIC %md ## 2.7. Sudden death and death within 24h of symptom onset
+
+# COMMAND ----------
+
+# Sudden death (Death - ICD10 only)
+codelist_SuddenDeath = spark.createDataFrame(
+  [
+    ("Sudden death", "ICD10", "R960", "Instantaneous death", "1"),
+    ("Sudden death", "ICD10", "R961", "Death occurring less than 24 hours from onset of symptoms, not otherwise explained", "1")
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_SuddenDeath, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md ## 2.8. Other and unspecified disorders of the circulatory system
+
+# COMMAND ----------
+
+# Other and unspecified disorders of the circulatory system (Death - ICD10 only)
+codelist_OtherCVD = spark.createDataFrame(
+  [
+    ("OtherCVD", "ICD10", "I95", "Hypotension", "1"),
+    ("OtherCVD", "ICD10", "I97", "Postprocedural disorders of circulatory system, not elsewhere classified", "1"),
+    ("OtherCVD", "ICD10", "I98", "Other disorders of circulatory system in diseases classified elsewhere", "1"),
+    ("OtherCVD", "ICD10", "I99", "Other and unspecified disorders of circulatory system", "1")
+  ],
+  ['name', 'terminology', 'code', 'term', 'code_type']  
+)
+
+# Check
+count_var(codelist_OtherCVD, 'code')
+
+# COMMAND ----------
+
+# MAGIC %md # 3. Combine CVD oucome codelists
+
+# COMMAND ----------
+
+codelists = [codelist_Angina, codelist_CHD, codelist_AR, codelist_HF, codelist_stroke, codelist_PVD, codelist_DVT,
+             codelist_Hypertensive, codelist_OtherHD, codelist_Arter, codelist_SuddenDeath, codelist_OtherCVD]
+
+codelist_all_outcomes = reduce(DataFrame.unionAll, codelists)
+
+# COMMAND ----------
+
+# MAGIC %md # 4. Checks
+
+# COMMAND ----------
+
+# check
+# tmpt = tab(codelist_all_outcomes, 'name', 'terminology')
+
+# COMMAND ----------
+
+assert codelist_all_outcomes.where((f.col('terminology').rlike('\s'))|(f.col('code').rlike('[.]'))|(f.col('code').rlike('\s'))|(f.col('code_type').rlike('\s'))).count() == 0 
+
+# COMMAND ----------
+
+# MAGIC %md # 5. Save
+
+# COMMAND ----------
+
+# # save name
+outName = f'{proj}_out_codelist_cvd_outcomes'
+
+# save
+codelist_all_outcomes.write.mode('overwrite').saveAsTable(f'{dsa}.{outName}')

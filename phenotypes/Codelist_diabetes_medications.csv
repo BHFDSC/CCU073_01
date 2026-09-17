@@ -1,0 +1,61 @@
+code,code_description,terminology,medication_group,in_open_prescribing
+0601022B0,Metformin hydrochloride,BNF,Metformin,1
+0601023AD,Metformin hydrochloride/sitagliptin ,BNF,Metformin Combination,1
+0601023AF,Linagliptin/metformin ,BNF,Metformin Combination,1
+0601023AH,Saxagliptin/metformin ,BNF,Metformin Combination,1
+0601023AJ,Alogliptin/metformin ,BNF,Metformin Combination,1
+0601023AL,Dapagliflozin/metformin ,BNF,Metformin Combination,1
+0601023AP,Canagliflozin/metformin ,BNF,Metformin Combination,1
+0601023AR,Empagliflozin/metformin ,BNF,Metformin Combination,1
+0601023V0,Metformin hydrochloride/rosiglitazone ,BNF,Metformin Combination,1
+0601023W0,Metformin hydrochloride/pioglitazone ,BNF,Metformin Combination,1
+0601023Z0,Metformin hydrochloride/vildagliptin ,BNF,Metformin Combination,1
+0601023A0,Acarbose ,BNF,Antidiabetic,1
+0601023AS,Albiglutide ,BNF,Antidiabetic,1
+0601023AK,Alogliptin ,BNF,Antidiabetic,1
+0601023AM,Canagliflozin ,BNF,Antidiabetic,1
+601021,Chlorpropamide ,BNF,Antidiabetic,1
+0601023AG,Dapagliflozin ,BNF,Antidiabetic,1
+0601023AQ,Dulaglutide ,BNF,Antidiabetic,1
+0601023AN,Empagliflozin ,BNF,Antidiabetic,1
+0601023AY,Empagliflozin/linagliptin ,BNF,Antidiabetic,1
+0601023AX,Ertugliflozin ,BNF,Antidiabetic,1
+0601023Y0,Exenatide ,BNF,Antidiabetic,1
+0601021H0,Glibenclamide ,BNF,Antidiabetic,1
+0601021M0,Gliclazide ,BNF,Antidiabetic,1
+0601021A0,Glimepiride ,BNF,Antidiabetic,1
+0601021P0,Glipizide ,BNF,Antidiabetic,1
+0601023I0,Guar gum ,BNF,Antidiabetic,1
+0601023AU,Ins degludec/liraglutide ,BNF,Antidiabetic,1
+0601023AE,Linagliptin ,BNF,Antidiabetic,1
+0601023AB,Liraglutide ,BNF,Antidiabetic,1
+0601023AI,Lixisenatide ,BNF,Antidiabetic,1
+0601023U0,Nateglinide ,BNF,Antidiabetic,1
+0601023B0,Pioglitazone hydrochloride ,BNF,Antidiabetic,1
+0601023R0,Repaglinide ,BNF,Antidiabetic,1
+0601023S0,Rosiglitazone ,BNF,Antidiabetic,1
+0601023AC,Saxagliptin ,BNF,Antidiabetic,1
+0601023AV,Saxagliptin/dapagliflozin ,BNF,Antidiabetic,1
+0601023AW,Semaglutide ,BNF,Antidiabetic,1
+0601023X0,Sitagliptin ,BNF,Antidiabetic,1
+0601023AZ,Tirzepatide,BNF,Antidiabetic,1
+0601021X0,Tolbutamide ,BNF,Antidiabetic,1
+0601023AA,Vildagliptin ,BNF,Antidiabetic,1
+0601021R0,,BNF,Antidiabetic,0
+0601012W0,Biphasic insulin aspart,BNF,Insulin,1
+0601012F0,Biphasic insulin lispro,BNF,Insulin,1
+0601012D0,Biphasic isophane insulin,BNF,Insulin,1
+0601011A0,Insulin aspart,BNF,Insulin,1
+0601012Z0,Insulin degludec,BNF,Insulin,1
+0601012X0,Insulin detemir,BNF,Insulin,1
+0601012V0,Insulin glargine,BNF,Insulin,1
+0601012AB,Insulin glargine/lixisenatide,BNF,Insulin,1
+0601011P0,Insulin glulisine,BNF,Insulin,1
+0601011R0,Insulin human,BNF,Insulin,1
+0601011L0,Insulin Lispro,BNF,Insulin,1
+0601012G0,Insulin zinc suspension,BNF,Insulin,1
+0601012S0,Isophane insulin,BNF,Insulin,1
+0601012U0,Protamine zinc insulin,BNF,Insulin,1
+0601011N0,Soluble insulin (Neutral insulin),BNF,Insulin,1
+0601012N0,,BNF,Insulin,0
+0601011Q0,,BNF,Insulin,0
